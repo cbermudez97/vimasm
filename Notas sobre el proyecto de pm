@@ -1,0 +1,60 @@
+Notas sobre el proyecto de pm
+copiar (cambia de modo insertar a modo normal)
+escribir, mover el cursor y dar escape no consituyen acciones
+
+
+grupos de comandos:
+----------------------------------------- 
+copiar [y]
+borrar [d]
+reeemplazar [c] (borrar y pone en modo insertar)
+----------------------------------------
+repeticiones [numero cualquiera]
+---------------------------------------
+inicio del texto [^]
+fin del texto [$]
+palabra[w]
+lineacompleta (repetir los primeros tres)
+----------------------------------------------
+
+
+gg ir al inicio de su fichero
+# gg (# G) ir a la linea del documento
+G (shift g) va al final dl documento
+
+modo reeemplazar (R mayuscula) (similar al insert)
+cuando empiezas a escribir se sobreescribe el texto
+
+
+comando . (repetir la ultima accion 0.25 al entrar en el modo insertar)
+
+------------------modo visual------------------
+operadores de movimiento:
+inicio del texto [^]
+fin del texto [$]
+palabra[w] (saltar de palabra en palabra)
+
+insercion en modo bloque
+*insercion en modo insertar bloque(cursor multiple)(lo inserta)
+
+------------modo_linea_de_comandos-----------
+(requiere modo normal)(se llega a el a traves de los dos puntos ":" + algo mas)
+reemplazar texto ([%]s/palabra1/texto/[g]) (primera ocurrencia)(% es en todo el texto)(g reemplaza todas las ocurrencias) (por defecto es en la linea)
+set establece preferencias 
+(hlsearch se resaltan todas las ocurrencias hasta el modo insertar)
+(ignorcase ignora mayuscula y minusculas)
+(ruler pone la fila y la columna de donde esta el cursor)
+(tabstop=# define la cantidad de caracteres que contiene un tab)
+
+----------------------------------
+tres de estos cinco
+# delete (borra la linea)
+# yunk (copia la linea)
+# put copia la linea que 
+# copy # (copia la linea #1mera arriba de la 2#linea)
+# move # (delete + put)
+
+
+Autocompletamiento (palabras del texto)(ctrl p)
+
+busqueda (modo normal) (/patron + enter (la primera palabra con el cursor)n posterior, N annterior)
