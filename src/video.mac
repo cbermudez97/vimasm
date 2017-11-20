@@ -2,7 +2,8 @@
 %define VIDEO_MAC
 
 %define COLS 80
-%define ROWS 25
+%define ROWS 24
+%define Comand_Line 25
 
 %define FG.BLACK   0 << 8
 %define FG.BLUE    1 << 8
