@@ -1,0 +1,7 @@
+Carlos
+============================================================================================================
+-Comprobar el correcto funcionamiento del metodo adv_cursor.
+-Comprobar el shift para alternar los caracteres.
+-Probar que realmente get_input actualice el texto.
+-Tener en cuenta el codigo borrado el dia anterior.
+============================================================================================================
