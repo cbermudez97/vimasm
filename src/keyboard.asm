@@ -11,8 +11,8 @@ scan:
   ;Cleaning eax.
   xor eax, eax
   ;Cheking the status of input buffer.
-  in eax, 0x64
-  and eax, 2
+  in  al, 0x64
+  and al, 2
   je .zero ;Input buffer empty.
   ; Scan.
   in al, 0x60
