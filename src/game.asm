@@ -6,12 +6,11 @@ ASCII_CODE_NS db  0,27,49,50,51,52,53,54,55,56,57,48,45,61,8,9,113,119,101,114,1
 ASCII_CODE_S  db  0,27,33,64,35,36,37,94,38,42,40,41,95,43,8,9,81 ,87 ,69 ,82 ,84 ,89 ,85 ,73 ,79 ,80 ,123,125,13,0,65,83 ,68 ,70 ,71 ,72 ,74 ,75 ,76 ,58,34,126,0,124,90 ,88 ,67,86 ,66,78 ,77 ,60,62,63,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,43,0,0,0,0,0
 ASCII_CODE_LEN dd 83
 ;Data related to the text and cursor.
-TEXT times 10000000 db 0
+TEXT times 1000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0
 
 section .text
-
 extern clear
 extern scan
 extern calibrate
@@ -46,7 +45,6 @@ game:
   ; Initialize game
 
   FILL_SCREEN BG.BLACK
-
   ; Calibrate the timing
   call calibrate
 
@@ -54,7 +52,6 @@ game:
   game.loop:
     .input:
       call get_input
-
     ; Main loop.
     jmp game.loop
 
