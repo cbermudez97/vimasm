@@ -40,7 +40,7 @@
 %define KEY.K               0x25
 %define KEY.L               0x26
 %define KEY.;:              0x27
-%define KEY.'"              0x28
+%define KEY.quotes          0x28
 %define KEY.´~              0x29
 %define KEY.L_SH            0x2A
 %define KEY.\|              0x2B
@@ -76,7 +76,7 @@
 %define KEY.PgUP            0x49
 %define KEY.-(num)          0x4A
 %define KEY.4LeftArrow      0x4B
-%define KEY.5(num)          0x4C
+%define KEY.5_num           0x4C
 %define KEY.6 RtArrow       0x4D
 %define KEY.+(num)          0x4E
 %define KEY.1End            0x4F
