@@ -110,12 +110,12 @@ adv_cursor:
   ;While CURSOR is out of screen, advance SCREEN_START
   .loop2:
     mov ebx, SCREEN_START  
-    cmp 1920, eax
-    ja .end2;If CURSOR is on screen, end.
+    cmp eax, 1920
+    jbe .end2;If CURSOR is on screen, end.
     ;Else advance SCREEN_START and adjust CURSOR.
     add ebx, 80
     sub eax, 80
-    jmp loop2
+    jmp .loop2
     .end2:
   ;Update CURSOR and SCREEN_START
   mov [SCREEN_START], ebx
