@@ -4,24 +4,21 @@ section .data
 key db 0 
 
 section .text
-
 ; scan()
-; Scan for new keypress. Returns new scancode if changed since last call, zero
-; otherwise.
+; Get the hex code of the input if available otherwise zero
 global scan
 scan:
+  ;Cleaning eax.
+  xor eax, eax
+  ;Cheking the status of input buffer.
+  in eax, 0x64
+  and eax, 2
+  je .zero ;Input buffer empty.
   ; Scan.
   in al, 0x60
-
-  ; If scancode has changed, update key and return it.
-  cmp al, [key]
-  je .zero
-  mov [key], al
-  jmp .ret
-
-  ; Otherwise, return zero.
+  jmp .ret ;Return the hex code.
+  ;Return zero.
   .zero:
     xor eax, eax
-
   .ret:
     ret
