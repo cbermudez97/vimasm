@@ -44,7 +44,6 @@ mov %2, [ASCII_CODE_S + %1]
 %macro FILL_SCREEN 1
   push word %1
   call clear
-  add esp, 2
 %endmacro
 
 global game
@@ -115,9 +114,6 @@ get_input:
       .continue:
       cmp bl, 0
       je end_input
-      ;or bx, FG.GRAY;Testing
-      ;or bx, BG.BLACK;Testing
-      ;FILL_SCREEN bx;Testing
 
       .update:
       ;Set edx on the cursor correct place.

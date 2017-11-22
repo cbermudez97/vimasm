@@ -36,7 +36,8 @@ clear:
   push eax
   push ecx
   push edi
-  mov ax, [esp + 8] ; char, attrs
+  xor eax, eax
+  mov ax, [ebp + 8] ; char, attrs
   mov edi, FBUFFER
   mov ecx, COLS * ROWS
   cld
@@ -44,7 +45,8 @@ clear:
   pop edi
   pop ecx
   pop eax
-  ret 4
+  pop ebp
+  ret 2
 
 
 ; putc(char chr, byte color, byte r, byte c)
