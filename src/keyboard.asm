@@ -12,7 +12,7 @@ scan:
   xor eax, eax
   ;Cheking the status of input buffer.
   in  al, 0x64
-  and al, 2
+  test al, 1
   je .zero ;Input buffer empty.
   ; Scan.
   in al, 0x60
