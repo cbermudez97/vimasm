@@ -19,6 +19,7 @@ section .text
 extern clear
 extern scan
 extern calibrate
+extern PrintScreen
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -47,6 +48,11 @@ mov %2, [ASCII_CODE_S + %1]
 
 global game
 game:
+  ;Cleaning registries.
+  xor eax, eax
+  xor ebx, ebx
+  xor ecx, ecx
+  xor edx, edx
   ; Initialize game
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
@@ -54,7 +60,16 @@ game:
   ; Snakasm main loop
   game.loop:
     .input:
-      call get_input
+      call get_input;Get the Input.
+      ;Printing the screen.
+      mov eax, TEXT
+      add eax, [SCREEN_START]
+      add eax, [CURSOR]
+      push eax
+      sub eax, [CURSOR]
+      push eax
+      call PrintScreen
+      ;End printing the screen.
     ; Main loop.
     jmp game.loop
     ret
@@ -78,9 +93,9 @@ get_input:
 
 
     ;Update the the text if char.        
-      xor ebx, ebx;Testing
-      cmp eax, [ASCII_CODE_LEN];Testing
-      ja end_input;Testing
+      xor ebx, ebx
+      cmp eax, [ASCII_CODE_LEN]
+      ja end_input
       mov dl, [SHIFT_STATUS]
       cmp dl, 1
       jne .noShift
@@ -90,11 +105,11 @@ get_input:
       .noShift:
       GET_ASCII_NS eax, bl
       .continue:
-      cmp bl, 0;Testing
-      je end_input;Testing
-      or bx, FG.GRAY;Testing
-      or bx, BG.BLACK;Testing
-      FILL_SCREEN bx;Testing
+      cmp bl, 0
+      je end_input
+      ;or bx, FG.GRAY;Testing
+      ;or bx, BG.BLACK;Testing
+      ;FILL_SCREEN bx;Testing
 
       .update:
       ;Set edx on the cursor correct place.
