@@ -158,5 +158,5 @@ adv_cursor:
     mov byte [SHIFT_STATUS], 1
     ret
   Shift_Released:
-    mov byte [SHIFT_STATUS], 1
+    mov byte [SHIFT_STATUS], 0
     ret
