@@ -13,7 +13,7 @@
     shl ax, 1
 %endmacro
 
-; SETCORSOR(word cursor position,CURSOR.ON to activate the cursor or CURSOR.OFF to remove the cursor)
+; SETCURSOR(word cursor position,CURSOR.ON to activate the cursor or CURSOR.OFF to remove the cursor)
 %macro SETCURSOR 2.nolist
     push eax
     mov eax,word [%1]
@@ -55,47 +55,54 @@ putc:
 ;-------------We need to be sure about the paraghap does not go away from the screen-----------------
 gobal PrintScreen
 PrintScreen:
+push ebp
+mov ebp, esp
 push eax
 push ebx
 push ecx
 push edx
 push esi
 push edi
-push ebp
 xor eax,eax
 xor ebx,ebx
 xor ecx,ecx
 xor edx,edx
-mov ebp, esp
 mov edx, [ebp + 8] ; inicio del array
-mov bx, [ebp + 12] ; posicion del cursor
+mov ebx, [ebp + 12] ; posicion del cursor
 mov eax, word 0
 cld
 mov edi, VSCREEN_START ; inicio de la direccion de video
 mov esi, edx ; mov el inicio del array de caracteres
 mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
 .imprimir:
-movzx ax, [esi]
-cmp ax , 0
+xor eax,eax
+movzx al, [esi]
+cmp esi,ebx ; comparar si esta el cursor en esa direccion
+jnz .nocursor:
+SETCURSOR ax,CURSOR.ON ; prender el cursor
+.nocursor: ; continuar
+cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
 jz .rellenar
 ; drawing char
 or ax, FG.BRIGHT
+or ax, FG.GRAY
 or ax, BG.BLACK
 stosw
 jmp .cont
 ; filling the cell
-.rellenar
+.rellenar:
 and ax,word 0
 stosw
-.cont
+.cont:
 dec ecx
 cmp ecx,0
 jnz .imprimir
-pop eax
-pop ebx
-pop ecx
-pop edx
-pop esi
+SETCURSOR ebx, CURSOR.ON
 pop edi
+pop esi
+pop edx
+pop ecx
+pop ebx
+pop eax
 pop ebp
-ret
+ret 8
