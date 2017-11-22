@@ -61,7 +61,6 @@ putc:
     xor ebx, ebx
     ; calc famebuffer offset 2 * (r * COLS + c)
     FBOFFSET [ebp + 11], [ebp + 10]
-
     mov bx, [ebp + 8]
     mov [FBUFFER + eax], bx
     pop eax
@@ -88,14 +87,13 @@ xor ecx,ecx
 xor edx,edx
 mov edx, [ebp + 8] ; inicio del array
 mov ebx, [ebp + 12] ; posicion del cursor
-mov eax, 0
 cld
 mov edi, VSCREEN_START ; inicio de la direccion de video
 mov esi, edx ; mov el inicio del array de caracteres
 mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
 .imprimir:
 xor eax,eax
-mov al, [esi]
+lodsb
 cmp esi,ebx ; comparar si esta el cursor en esa direccion
 jnz .nocursor
 SETCURSOR ax, CURSOR.ON ; prender el cursor
