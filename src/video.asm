@@ -31,12 +31,20 @@ section .text
 ; Clear the screen by filling it with char and attributes.
 global clear
 clear:
-  mov ax, [esp + 4] ; char, attrs
+  push ebp
+  mov ebp, esp
+  push eax
+  push ecx
+  push edi
+  mov ax, [esp + 8] ; char, attrs
   mov edi, FBUFFER
   mov ecx, COLS * ROWS
   cld
   rep stosw
-  ret
+  pop edi
+  pop ecx
+  pop eax
+  ret 4
 
 
 ; putc(char chr, byte color, byte r, byte c)
