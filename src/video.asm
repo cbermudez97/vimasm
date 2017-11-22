@@ -15,11 +15,11 @@
 
 ; SETCURSOR(word cursor position,CURSOR.ON to activate the cursor or CURSOR.OFF to remove the cursor)
 %macro SETCURSOR 2.nolist
-    push eax
-    mov eax,word [%1]
-    or eax, %2
-    mov word [%1], eax
-    pop eax
+    push dx
+    mov dx, %1
+    or dx, %2
+    mov %1, dx
+    pop dx
 %endmacro
 
 
@@ -43,17 +43,26 @@ clear:
 ;      4         5           6       7
 global putc
 putc:
+    push ebp
+    mov ebp, esp
+    push ebx
+    push eax
+    xor eax, eax
+    xor ebx, ebx
     ; calc famebuffer offset 2 * (r * COLS + c)
-    FBOFFSET [esp + 6], [esp + 7]
+    FBOFFSET [ebp + 11], [ebp + 10]
 
-    mov bx, [esp + 4]
+    mov bx, [ebp + 8]
     mov [FBUFFER + eax], bx
-
+    pop eax
+    pop ebx
+    pop ebp
+    ret 4
 
 ;(dword text + screenstart, dword cursor)
 ;draw the entire screen
 ;-------------We need to be sure about the paraghap does not go away from the screen-----------------
-gobal PrintScreen
+global PrintScreen
 PrintScreen:
 push ebp
 mov ebp, esp
@@ -69,17 +78,17 @@ xor ecx,ecx
 xor edx,edx
 mov edx, [ebp + 8] ; inicio del array
 mov ebx, [ebp + 12] ; posicion del cursor
-mov eax, word 0
+mov eax, 0
 cld
 mov edi, VSCREEN_START ; inicio de la direccion de video
 mov esi, edx ; mov el inicio del array de caracteres
 mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
 .imprimir:
 xor eax,eax
-movzx al, [esi]
+mov al, [esi]
 cmp esi,ebx ; comparar si esta el cursor en esa direccion
-jnz .nocursor:
-SETCURSOR ax,CURSOR.ON ; prender el cursor
+jnz .nocursor
+SETCURSOR ax, CURSOR.ON ; prender el cursor
 .nocursor: ; continuar
 cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
 jz .rellenar
@@ -97,7 +106,6 @@ stosw
 dec ecx
 cmp ecx,0
 jnz .imprimir
-SETCURSOR ebx, CURSOR.ON
 pop edi
 pop esi
 pop edx

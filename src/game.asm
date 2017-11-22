@@ -20,6 +20,7 @@ extern clear
 extern scan
 extern calibrate
 extern PrintScreen
+extern putc
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -48,11 +49,6 @@ mov %2, [ASCII_CODE_S + %1]
 
 global game
 game:
-  ;Cleaning registries.
-  xor eax, eax
-  xor ebx, ebx
-  xor ecx, ecx
-  xor edx, edx
   ; Initialize game
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
@@ -60,11 +56,23 @@ game:
   ; Snakasm main loop
   game.loop:
     .input:
+      ;Cleaning registries.
+      xor eax, eax
+      xor ebx, ebx
+      xor ecx, ecx
+      xor edx, edx
       call get_input;Get the Input.
       ;Printing the screen.
       mov eax, TEXT
       add eax, [SCREEN_START]
       add eax, [CURSOR]
+      cmp eax, TEXT
+      je .input
+      ;mov bl, [eax-1]
+      ;or bx, FG.GRAY
+      ;push word 0x0000
+      ;push bx
+      ;call putc
       push eax
       sub eax, [CURSOR]
       push eax
@@ -91,7 +99,7 @@ get_input:
     bind KEY.L_SH , Shift_Pressed;Shift Pressed?
     bind KEY.L_SH+128 , Shift_Released;Shift Released?
 
-
+    
     ;Update the the text if char.        
       xor ebx, ebx
       cmp eax, [ASCII_CODE_LEN]

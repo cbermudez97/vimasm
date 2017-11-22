@@ -1,8 +1,5 @@
 section .data
 
-; Previous scancode.
-key db 0 
-
 section .text
 ; scan()
 ; Get the hex code of the input if available otherwise zero
@@ -19,6 +16,6 @@ scan:
   jmp .ret ;Return the hex code.
   ;Return zero.
   .zero:
-    xor eax, eax
+    jmp scan
   .ret:
     ret
