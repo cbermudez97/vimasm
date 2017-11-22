@@ -5,3 +5,11 @@ Carlos
 -Probar que realmente get_input actualice el texto.
 -Tener en cuenta el codigo borrado el dia anterior.
 ============================================================================================================
+
+Roberto
+============================================================================================================
+-Garantizar que el metodo de llenar la pantalla se le pase el texto que realmente va a estar en la misma
+-Comprobar que el cursor este realmente activado con los define CURSOR.ON y CURSOR.OFF
+-Ver una manera de acortar el metodo de llenar pantalla
+-Garantizar que el codigo agregado no choque con el de Carlos
+============================================================================================================

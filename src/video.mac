@@ -5,6 +5,13 @@
 %define ROWS 24
 %define Comand_Line 25
 
+%define VSCREEN_START 0xB8000
+%define VSCREEN_END 0xB8780
+%define COMMAND_LINE_START 0xB8781
+%define COMMAND_LINE_END 0xB87D0
+%define CURSOR.ON 0x8000
+%define CURSOR.OFF 0x0000
+
 %define FG.BLACK   0 << 8
 %define FG.BLUE    1 << 8
 %define FG.GREEN   2 << 8

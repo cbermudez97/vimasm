@@ -13,6 +13,17 @@
     shl ax, 1
 %endmacro
 
+; SETCORSOR(word cursor position,CURSOR.ON to activate the cursor or CURSOR.OFF to remove the cursor)
+%macro SETCURSOR 2.nolist
+    push eax
+    mov eax,word [%1]
+    or eax, %2
+    mov word [%1], eax
+    pop eax
+%endmacro
+
+
+
 
 section .text
 
@@ -37,3 +48,54 @@ putc:
 
     mov bx, [esp + 4]
     mov [FBUFFER + eax], bx
+
+
+;(dword text + screenstart, dword cursor)
+;draw the entire screen
+;-------------We need to be sure about the paraghap does not go away from the screen-----------------
+gobal PrintScreen
+PrintScreen:
+push eax
+push ebx
+push ecx
+push edx
+push esi
+push edi
+push ebp
+xor eax,eax
+xor ebx,ebx
+xor ecx,ecx
+xor edx,edx
+mov ebp, esp
+mov edx, [ebp + 8] ; inicio del array
+mov bx, [ebp + 12] ; posicion del cursor
+mov eax, word 0
+cld
+mov edi, VSCREEN_START ; inicio de la direccion de video
+mov esi, edx ; mov el inicio del array de caracteres
+mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
+.imprimir:
+movzx ax, [esi]
+cmp ax , 0
+jz .rellenar
+; drawing char
+or ax, FG.BRIGHT
+or ax, BG.BLACK
+stosw
+jmp .cont
+; filling the cell
+.rellenar
+and ax,word 0
+stosw
+.cont
+dec ecx
+cmp ecx,0
+jnz .imprimir
+pop eax
+pop ebx
+pop ecx
+pop edx
+pop esi
+pop edi
+pop ebp
+ret
