@@ -11,6 +11,10 @@ TEXT times 10000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0
 
+;Shift Status
+SHIFT_STATUS db 0
+
+
 section .text
 extern clear
 extern scan
@@ -44,7 +48,6 @@ mov %2, [ASCII_CODE_S + %1]
 global game
 game:
   ; Initialize game
-
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
   call calibrate
@@ -57,19 +60,42 @@ game:
     ret
 
 get_input:
-    call scan; Hex code in eax(al)
-    ; Check if value is valid
-    cmp al, 0
-    je end_input
+    ;Saving registries
     push ecx
     push ebx
     push edx
-    ; Check for bindings.(enter,backspace...)
-    ;Binds needed.
+    push eax
+
+    call scan; Hex code in eax(al)
+    push ax
+    ; Check if value is valid
+    cmp al, 0
+    je end_input
     
-    ;Update the the text if char.
-      .noShift:    
+    ; Check for bindings.(enter,backspace...)
+    bind KEY.L_SH , Shift_Pressed;Shift Pressed?
+    bind KEY.L_SH+128 , Shift_Released;Shift Released?
+
+
+    ;Update the the text if char.        
+      xor ebx, ebx;Testing
+      cmp eax, [ASCII_CODE_LEN];Testing
+      ja end_input;Testing
+      mov dl, [SHIFT_STATUS]
+      cmp dl, 1
+      jne .noShift
+      .shift:
+      GET_ASCII_S eax, bl
+      jmp .continue
+      .noShift:
       GET_ASCII_NS eax, bl
+      .continue:
+      cmp bl, 0;Testing
+      je end_input;Testing
+      or bx, FG.GRAY;Testing
+      or bx, BG.BLACK;Testing
+      FILL_SCREEN bx;Testing
+
       .update:
       ;Set edx on the cursor correct place.
       mov edx, TEXT
@@ -81,8 +107,11 @@ get_input:
       mov ecx, 1
       push ecx
       call adv_cursor
+
     ;End get_input
     end_input:
+    pop ax
+    pop eax
     pop edx
     pop ebx
     pop ecx
@@ -122,3 +151,12 @@ adv_cursor:
   pop eax
   pop ebp
   ret 4
+
+
+  ;Bindings Methods
+  Shift_Pressed:
+    mov byte [SHIFT_STATUS], 1
+    ret
+  Shift_Released:
+    mov byte [SHIFT_STATUS], 1
+    ret
