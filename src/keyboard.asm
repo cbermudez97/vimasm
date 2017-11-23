@@ -11,6 +11,8 @@ scan:
   in  al, 0x64
   test al, 1
   je .zero ;Input buffer empty.
+  test al, 32
+  jne .zero
   ; Scan.
   in al, 0x60
   jmp .ret ;Return the hex code.
