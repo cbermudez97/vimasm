@@ -98,7 +98,7 @@ get_input:
     bind KEY.L_SH , Shift_Pressed;Shift Pressed?
     bind KEY.L_SH+128 , Shift_Released;Shift Released?
 
-    
+
     ;Update the the text if char.        
       xor ebx, ebx
       cmp eax, [ASCII_CODE_LEN]
@@ -148,12 +148,10 @@ adv_cursor:
   ;Get CURSOR
   mov eax, [CURSOR]
   ;Advance CURSOR
-  .loop1:
-    inc eax
-    loop .loop1
+  add eax, ecx
   ;While CURSOR is out of screen, advance SCREEN_START
   .loop2:
-    mov ebx, SCREEN_START  
+    mov ebx, SCREEN_START
     cmp eax, 1920
     jbe .end2;If CURSOR is on screen, end.
     ;Else advance SCREEN_START and adjust CURSOR.
