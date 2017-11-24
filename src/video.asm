@@ -94,7 +94,7 @@ mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
 .imprimir:
 xor eax,eax
 lodsb
-cmp esi,ebx ; comparar si esta el cursor en esa direccion
+cmp esi, ebx ; comparar si esta el cursor en esa direccion
 jnz .nocursor
 SETCURSOR ax, CURSOR.ON ; prender el cursor
 .nocursor: ; continuar
@@ -108,11 +108,11 @@ stosw
 jmp .cont
 ; filling the cell
 .rellenar:
-and ax,word 0
+and al, 0
 stosw
 .cont:
 dec ecx
-cmp ecx,0
+cmp ecx, 0
 jnz .imprimir
 pop edi
 pop esi

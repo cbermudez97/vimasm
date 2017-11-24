@@ -60,23 +60,16 @@ game:
       xor ebx, ebx
       xor ecx, ecx
       xor edx, edx
-      call get_input;Get the Input.
       ;Printing the screen.
       mov eax, TEXT
       add eax, [SCREEN_START]
       add eax, [CURSOR]
-      cmp eax, TEXT
-      je .input
-      ;mov bl, [eax-1]
-      ;or bx, FG.GRAY
-      ;push word 0x0000
-      ;push bx
-      ;call putc
       push eax
       sub eax, [CURSOR]
       push eax
       call PrintScreen
       ;End printing the screen.
+      call get_input;Get the Input.
     ; Main loop.
     jmp game.loop
     ret
@@ -150,8 +143,8 @@ adv_cursor:
   ;Advance CURSOR
   add eax, ecx
   ;While CURSOR is out of screen, advance SCREEN_START
+  mov ebx, [SCREEN_START]
   .loop2:
-    mov ebx, SCREEN_START
     cmp eax, 1920
     jbe .end2;If CURSOR is on screen, end.
     ;Else advance SCREEN_START and adjust CURSOR.
