@@ -129,7 +129,7 @@ get_input:
     pop ecx
     ret
 
-;Move CURSOR forward(need correction with the limits in case of bad assumptions!!!)
+;Move CURSOR forward(Correct)
 adv_cursor:
   push ebp
   mov ebp, esp
@@ -151,6 +151,48 @@ adv_cursor:
     add ebx, 80
     sub eax, 80
     jmp .loop2
+    .end2:
+  ;Update CURSOR and SCREEN_START
+  mov [SCREEN_START], ebx
+  mov [CURSOR], eax
+  ;Epilog
+  pop ecx
+  pop ebx
+  pop eax
+  pop ebp
+  ret 4
+
+;Move CURSOR forward(Correct)
+ret_cursor:
+  push ebp
+  mov ebp, esp
+  push eax
+  push ebx
+  push ecx
+  ;Get parameter
+  mov ecx, [ebp + 8]
+  ;Get CURSOR
+  mov eax, [CURSOR]
+  ;Advance CURSOR
+  sub eax, ecx
+  ;While CURSOR is out of screen, advance SCREEN_START
+  mov ebx, [SCREEN_START]
+  .loop2:
+    cmp eax, 0
+    jge .end2;If CURSOR is on screen, end.
+    ;Else move backward SCREEN_START and adjust CURSOR.
+    sub ebx, 80
+    add eax, 80
+    cmp ebx,0;Is the Screen before the start of the Text.
+    jl .end2special
+    jmp .loop2
+    .end2special:
+    add ebx, 80
+    .loop3:
+    cmp eax, 0
+    jge .end2
+    add eax, 80
+    jmp loop3
     .end2:
   ;Update CURSOR and SCREEN_START
   mov [SCREEN_START], ebx
