@@ -72,15 +72,15 @@
 %define KEY.NumLk           0x45
 %define KEY.ScrlLk          0x46
 %define KEY.Home            0x47
-%define KEY.Up              0x48
+%define KEY.UpArrow         0x48
 %define KEY.PgUP            0x49
 %define KEY.-(num)          0x4A
-%define KEY.4LeftArrow      0x4B
+%define KEY.LeftArrow       0x4B
 %define KEY.5_num           0x4C
-%define KEY.6 RtArrow       0x4D
+%define KEY.RightArrow      0x4D
 %define KEY.+(num)          0x4E
 %define KEY.1End            0x4F
-%define KEY.2DnArrow        0x50
+%define KEY.DownArrow       0x50
 %define KEY.PgDn            0x51
 %define KEY.Ins             0x52
 %define KEY.Del.            0x53

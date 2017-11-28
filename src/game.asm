@@ -90,7 +90,10 @@ get_input:
     ; Check for bindings.(enter,backspace...)
     bind KEY.L_SH , Shift_Pressed;Shift Pressed?
     bind KEY.L_SH+128 , Shift_Released;Shift Released?
-
+    bind KEY.UpArrow , UpArrow_Pressed;UpArrow Pressed?
+    bind KEY.DownArrow , DownArrow_Pressed;Down Arrow Pressed?
+    bind KEY.LeftArrow , LeftArrow_Pressed;Left Arrow Pressed?
+    bind KEY.RightArrow , RightArrow_Pressed;Right Arrow Pressed?
 
     ;Update the the text if char.        
       xor ebx, ebx
@@ -192,7 +195,7 @@ ret_cursor:
     cmp eax, 0
     jge .end2
     add eax, 80
-    jmp loop3
+    jmp .loop3
     .end2:
   ;Update CURSOR and SCREEN_START
   mov [SCREEN_START], ebx
@@ -212,3 +215,46 @@ ret_cursor:
   Shift_Released:
     mov byte [SHIFT_STATUS], 0
     ret
+  UpArrow_Pressed:
+  push ebp
+  mov ebp, esp
+  push ecx
+  mov ecx, 80
+  push ecx
+  call ret_cursor
+  pop ecx
+  pop ebp
+  ret
+  DownArrow_Pressed:
+  push ebp
+  mov ebp, esp
+  push ecx
+  mov ecx, 80
+  push ecx
+  call adv_cursor
+  pop ecx
+  pop ebp
+  ret
+  ret
+  LeftArrow_Pressed:
+  push ebp
+  mov ebp, esp
+  push ecx
+  mov ecx, 1
+  push ecx
+  call ret_cursor
+  pop ecx
+  pop ebp
+  ret
+  ret
+  RightArrow_Pressed:
+  push ebp
+  mov ebp, esp
+  push ecx
+  mov ecx, 1
+  push ecx
+  call adv_cursor
+  pop ecx
+  pop ebp
+  ret
+  ret
