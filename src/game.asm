@@ -119,9 +119,8 @@ get_input:
       ;Write char in al to the Text
       mov [edx], bl
       ;Move cursor one position
-      mov ecx, 1
-      push ecx
-      call adv_cursor
+      push dword 1
+      call mov_cursor
 
     ;End get_input
     end_input:
@@ -132,129 +131,70 @@ get_input:
     pop ecx
     ret
 
-;Move CURSOR forward(Correct)
-adv_cursor:
+;New method
+mov_cursor:
   push ebp
   mov ebp, esp
-  push eax
-  push ebx
   push ecx
-  ;Get parameter
-  mov ecx, [ebp + 8]
-  ;Get CURSOR
-  mov eax, [CURSOR]
-  ;Advance CURSOR
-  add eax, ecx
-  ;While CURSOR is out of screen, advance SCREEN_START
-  mov ebx, [SCREEN_START]
-  .loop2:
-    cmp eax, 1920
-    jbe .end2;If CURSOR is on screen, end.
-    ;Else advance SCREEN_START and adjust CURSOR.
-    add ebx, 80
-    sub eax, 80
-    jmp .loop2
-    .end2:
-  ;Update CURSOR and SCREEN_START
-  mov [SCREEN_START], ebx
-  mov [CURSOR], eax
-  ;Epilog
-  pop ecx
-  pop ebx
-  pop eax
-  pop ebp
-  ret 4
 
-;Move CURSOR forward(Correct)
-ret_cursor:
-  push ebp
-  mov ebp, esp
-  push eax
-  push ebx
-  push ecx
-  ;Get parameter
   mov ecx, [ebp + 8]
-  ;Get CURSOR
-  mov eax, [CURSOR]
-  ;Advance CURSOR
-  sub eax, ecx
-  ;While CURSOR is out of screen, advance SCREEN_START
-  mov ebx, [SCREEN_START]
-  .loop2:
-    cmp eax, 0
-    jge .end2;If CURSOR is on screen, end.
-    ;Else move backward SCREEN_START and adjust CURSOR.
-    sub ebx, 80
-    add eax, 80
-    cmp ebx,0;Is the Screen before the start of the Text.
-    jl .end2special
-    jmp .loop2
-    .end2special:
-    add ebx, 80
-    .loop3:
-    cmp eax, 0
-    jge .end2
-    add eax, 80
-    jmp .loop3
-    .end2:
-  ;Update CURSOR and SCREEN_START
-  mov [SCREEN_START], ebx
-  mov [CURSOR], eax
-  ;Epilog
+  add dword [CURSOR], ecx
+  cmp dword [CURSOR], 0
+  jge .not_negative
+    sub dword [SCREEN_START], 80
+    cmp dword [SCREEN_START], 0
+    jge .not_negative_screen
+    add dword [SCREEN_START], 80
+    sub dword [CURSOR], ecx
+    jmp .end 
+    .not_negative_screen:
+    push dword 80
+    call mov_cursor
+    jmp .end
+  .not_negative:
+
+  cmp dword [CURSOR], 1920
+  jl .end
+    add dword [SCREEN_START], 80
+    cmp dword [SCREEN_START], 10000000
+    jle .not_end_text
+    sub dword [SCREEN_START], 80
+    sub dword [CURSOR], ecx
+    jmp .end 
+    .not_end_text:
+    push dword -80
+    call mov_cursor
+  .end:
   pop ecx
-  pop ebx
-  pop eax
   pop ebp
   ret 4
 
 
-  ;Bindings Methods
-  Shift_Pressed:
-    mov byte [SHIFT_STATUS], 1
-    ret
-  Shift_Released:
-    mov byte [SHIFT_STATUS], 0
-    ret
-  UpArrow_Pressed:
-  push ebp
-  mov ebp, esp
-  push ecx
-  mov ecx, 80
-  push ecx
-  call ret_cursor
-  pop ecx
-  pop ebp
+;Bindings Methods
+Shift_Pressed:
+  mov byte [SHIFT_STATUS], 1
   ret
-  DownArrow_Pressed:
-  push ebp
-  mov ebp, esp
-  push ecx
-  mov ecx, 80
-  push ecx
-  call adv_cursor
-  pop ecx
-  pop ebp
+
+Shift_Released:
+  mov byte [SHIFT_STATUS], 0
   ret
+
+UpArrow_Pressed:
+  push dword -80
+  call mov_cursor
   ret
-  LeftArrow_Pressed:
-  push ebp
-  mov ebp, esp
-  push ecx
-  mov ecx, 1
-  push ecx
-  call ret_cursor
-  pop ecx
-  pop ebp
+
+DownArrow_Pressed:
+  push dword 80
+  call mov_cursor
   ret
+  
+LeftArrow_Pressed:
+  push dword -1
+  call mov_cursor
   ret
+  
   RightArrow_Pressed:
-  push ebp
-  mov ebp, esp
-  push ecx
-  mov ecx, 1
-  push ecx
-  call adv_cursor
-  pop ecx
-  pop ebp
-  ret
+  push dword 1
+  call mov_cursor
   ret

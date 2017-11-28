@@ -87,6 +87,7 @@ xor ecx,ecx
 xor edx,edx
 mov edx, [ebp + 8] ; inicio del array
 mov ebx, [ebp + 12] ; posicion del cursor
+inc ebx
 cld
 mov edi, VSCREEN_START ; inicio de la direccion de video
 mov esi, edx ; mov el inicio del array de caracteres
