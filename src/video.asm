@@ -71,8 +71,8 @@ putc:
 ;(dword text + screenstart, dword cursor)
 ;draw the entire screen
 ;-------------We need to be sure about the paraghap does not go away from the screen-----------------
-global PrintScreen
-PrintScreen:
+global printscreen
+printscreen:
 push ebp
 mov ebp, esp
 push eax

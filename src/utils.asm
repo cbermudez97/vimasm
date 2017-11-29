@@ -3,35 +3,35 @@
 section .text
 global traslate
 traslate:
-SALVAR_REGISTROS
+    SALVAR_REGISTROS
     ; guardando la cantidad de veces a mover 
-    mov eax, [ebp + 12]; guardando la el numero de iteraciones
+    mov eax, [ebp + 12]; guardando el numero de iteraciones
     mov ecx, eax
     cmp eax, 0
     jge positivo
-    xor ecx,ecx
+    xor ecx, ecx
     mov ebx, -1
     imul ebx ; multiplicando para eliminar el signo
-    mov edx,[ebp + 12]
-    mov ecx,ebx
+    mov edx, [ebp + 12]
+    mov ecx, eax
     ;-----negativo-----------------
     ;negativo:
     cld
     mov esi, [ebp + 16]; inicio
     mov edi, [ebp + 16]; inicio
-    add esi, ebx
-    mov ecx, [ebp + 8] ; 
+    add esi, eax
+    mov ecx, [ebp + 8] 
     sub ecx, [ebp + 16]
     add ecx, [ebp + 12] ; inico del movimiento
     inc ecx          ; ecx = fin - pos - i + 1
     rep movsb ; copiar [byte esi] a [byte edi]
     ;------rellenar con ceros -------
-    mov ecx, ebx ; volviendo a guardar la cantidad de iteraciones
+    mov ecx, eax ; volviendo a guardar la cantidad de iteraciones
     ; el edi esta en el final del nuevo array (char de fin de archivo)
     inc edi
-    xor eax,eax
+    xor eax, eax
     rep stosb
-    jmp final!!!
+    jmp final
     positivo:
     std 
     mov esi, [ebp + 8]
@@ -44,9 +44,9 @@ SALVAR_REGISTROS
     ;rellenar con ceros -------
     xor eax, eax
     mov ecx, [ebp + 12]
-    mov edi, esi
+    mov edi, [ebp + 16]
     ; no se incrementa p tambien se ha de eliminar
     rep stosb
-    final!!!:
+    final:
     DEVOLVER_REGISTROS
-    ret
+    ret 12

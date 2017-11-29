@@ -1,5 +1,7 @@
 %include "video.mac"
 %include "keyboard.mac"
+
+
 section .data
 ;Data related to the hex-ascii translate.
 ASCII_CODE_NS db  0,27,49,50,51,52,53,54,55,56,57,48,45,61,8,9,113,119,101,114,116,121,117,105,111,112,91 ,93 ,13,0,97,115,100,102,103,104,106,107,108,59,39,96 ,0,92 ,122,120,99,118,98,110,109,44,46,47,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,43,0,0,0,0,0
@@ -10,6 +12,7 @@ ASCII_CODE_LEN dd 83
 TEXT times 10000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0
+END dd 0
 
 ;Shift Status
 SHIFT_STATUS db 0
@@ -21,6 +24,7 @@ extern scan
 extern calibrate
 extern PrintScreen
 extern putc
+extern traslate
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -52,7 +56,9 @@ game:
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
   call calibrate
-  ; Snakasm main loop
+  mov byte [TEXT], 13
+  mov dword [END], TEXT
+  ; Insertion mode main loop
   game.loop:
     .input:
       ;Cleaning registries.
@@ -67,7 +73,7 @@ game:
       push eax
       sub eax, [CURSOR]
       push eax
-      call PrintScreen
+      call printscreen
       ;End printing the screen.
       call get_input;Get the Input.
     ; Main loop.
@@ -116,6 +122,12 @@ get_input:
       mov edx, TEXT
       add edx, [SCREEN_START]
       add edx, [CURSOR]
+      ;Insert a new char
+      push edx
+      push dword 1
+      push dword [END]
+      call traslate
+      add dword [END], 1
       ;Write char in al to the Text
       mov [edx], bl
       ;Move cursor one position

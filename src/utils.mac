@@ -3,7 +3,7 @@
 
 %macro SALVAR_REGISTROS 0.nolist
 push ebp
-add ebp,esp
+mov ebp, esp
 push eax
 push ebx
 push ecx
