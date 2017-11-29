@@ -1,0 +1,29 @@
+%ifndef UTILS_MAC
+%define UTILS_MAC
+
+%macro SALVAR_REGISTROS 0.nolist
+push ebp
+add ebp,esp
+push eax
+push ebx
+push ecx
+push edx
+push edi
+push esi
+xor eax,eax
+xor ebx,ebx
+xor ecx,ecx
+xor edx,edx
+%endmacro
+
+%macro DEVOLVER_REGISTROS 0.nolist
+pop esi
+pop edi
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+%endmacro
+
+%endif ; UTILS_MAC
