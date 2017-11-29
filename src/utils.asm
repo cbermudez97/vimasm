@@ -15,22 +15,26 @@ traslate:
     mov edx, [ebp + 12]
     mov ecx, eax
     ;-----negativo-----------------
-    ;negativo:
+    negativo:
     cld
-    mov esi, [ebp + 16]; inicio
-    mov edi, [ebp + 16]; inicio
-    add esi, eax
-    mov ecx, [ebp + 8] 
-    sub ecx, [ebp + 16]
-    add ecx, [ebp + 12] ; inico del movimiento
-    inc ecx          ; ecx = fin - pos - i + 1
-    rep movsb ; copiar [byte esi] a [byte edi]
-    ;------rellenar con ceros -------
-    mov ecx, eax ; volviendo a guardar la cantidad de iteraciones
-    ; el edi esta en el final del nuevo array (char de fin de archivo)
-    inc edi
+    mov edi, [ebp + 16]
+    mov esi, edi
+    sub esi, [ebp + 12]
+    mov edx, [ebp + 8]
+    inc edx
+    .loop1:
+    cmp esi, edx
+    je .endloop1
+    movsb
+    jmp .loop1
+    .endloop1:
     xor eax, eax
-    rep stosb
+    .loop2:
+    cmp edi, edx
+    je .endloop2
+    stosb
+    jmp .loop2
+    .endloop2:
     jmp final
     positivo:
     std 

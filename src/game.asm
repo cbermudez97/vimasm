@@ -17,12 +17,11 @@ END dd 0
 ;Shift Status
 SHIFT_STATUS db 0
 
-
 section .text
 extern clear
 extern scan
 extern calibrate
-extern PrintScreen
+extern printscreen
 extern putc
 extern traslate
 
@@ -41,6 +40,7 @@ mov %2, [ASCII_CODE_S + %1]
   cmp byte [esp], %1
   jne %%next
   call %2
+  jmp end_input
   %%next:
 %endmacro
 
@@ -94,12 +94,13 @@ get_input:
     je end_input
     
     ; Check for bindings.(enter,backspace...)
-    bind KEY.L_SH , Shift_Pressed;Shift Pressed?
-    bind KEY.L_SH+128 , Shift_Released;Shift Released?
-    bind KEY.UpArrow , UpArrow_Pressed;UpArrow Pressed?
-    bind KEY.DownArrow , DownArrow_Pressed;Down Arrow Pressed?
-    bind KEY.LeftArrow , LeftArrow_Pressed;Left Arrow Pressed?
-    bind KEY.RightArrow , RightArrow_Pressed;Right Arrow Pressed?
+    bind KEY.L_SH , Shift_Pressed
+    bind KEY.L_SH+128 , Shift_Released
+    bind KEY.UpArrow , UpArrow_Pressed
+    bind KEY.DownArrow , DownArrow_Pressed
+    bind KEY.LeftArrow , LeftArrow_Pressed
+    bind KEY.RightArrow , RightArrow_Pressed
+    bind KEY.BKSP , Backspace_Pressed
 
     ;Update the the text if char.        
       xor ebx, ebx
@@ -127,7 +128,7 @@ get_input:
       push dword 1
       push dword [END]
       call traslate
-      add dword [END], 1
+      inc dword [END]
       ;Write char in al to the Text
       mov [edx], bl
       ;Move cursor one position
@@ -192,21 +193,89 @@ Shift_Released:
   ret
 
 UpArrow_Pressed:
+  push eax
   push dword -80
   call mov_cursor
+  .loop:
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp dword [eax], 0
+  jne .end
+  push dword -1
+  call mov_cursor
+  jmp .loop
+  .end:
+  pop eax
   ret
 
 DownArrow_Pressed:
+  push eax
   push dword 80
   call mov_cursor
+  .loop:
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp dword [eax], 0
+  jne .end
+  push dword -1
+  call mov_cursor
+  jmp .loop
+  .end:
+  pop eax
   ret
   
 LeftArrow_Pressed:
+  push eax
   push dword -1
   call mov_cursor
+  .loop:
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp dword [eax], 0
+  jne .end
+  push dword -1
+  call mov_cursor
+  jmp .loop
+  .end:
+  pop eax
   ret
   
-  RightArrow_Pressed:
+RightArrow_Pressed:
+  push eax
   push dword 1
   call mov_cursor
+  .loop:
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp dword [eax], 0
+  jne .end
+  push dword -1
+  call mov_cursor
+  jmp .loop
+  .end:
+  pop eax
+  ret
+
+Backspace_Pressed:
+  push eax
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp eax, TEXT
+  je .end
+  call LeftArrow_Pressed
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  push eax
+  push dword -1
+  push dword [END]
+  call traslate
+  dec dword [END]
+  .end:
+  pop eax
   ret
