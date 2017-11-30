@@ -56,7 +56,7 @@ game:
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
   call calibrate
-  mov byte [TEXT], 13
+  mov byte [TEXT], 3
   mov dword [END], TEXT
   ; Insertion mode main loop
   game.loop:
@@ -101,6 +101,7 @@ get_input:
     bind KEY.LeftArrow , LeftArrow_Pressed
     bind KEY.RightArrow , RightArrow_Pressed
     bind KEY.BKSP , Backspace_Pressed
+    bind KEY.Enter , Enter_Pressed
 
     ;Update the the text if char.        
       xor ebx, ebx
@@ -251,11 +252,18 @@ RightArrow_Pressed:
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
+  cmp eax, [END]
+  ja .endtext
   cmp dword [eax], 0
   jne .end
-  push dword -1
+  push dword 1
   call mov_cursor
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
   jmp .loop
+  .endtext:
+  call LeftArrow_Pressed
   .end:
   pop eax
   ret
@@ -277,5 +285,38 @@ Backspace_Pressed:
   call traslate
   dec dword [END]
   .end:
+  pop eax
+  ret
+
+Enter_Pressed:
+  push eax
+  push edx
+  push ebx
+  xor edx, edx
+  xor eax, eax
+  xor ebx, ebx
+  ;Calculating spaces to traslate later
+  mov eax, [CURSOR]
+  mov ebx, 80
+  div ebx
+  sub ebx, edx
+  ;Writing the enter char
+  ;Set edx on the cursor correct place.
+  xor edx, edx
+  mov edx, TEXT
+  add edx, [SCREEN_START]
+  add edx, [CURSOR]
+  ;Putting the blank spaces
+  push edx
+  push ebx
+  push dword [END]
+  call traslate
+  ;Write char in al to the Text
+  mov byte [edx], 10
+  add dword [END], ebx
+  push ebx
+  call mov_cursor
+  pop ebx
+  pop edx
   pop eax
   ret
