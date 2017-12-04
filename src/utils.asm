@@ -46,8 +46,11 @@ traslate:
     inc ecx ; f - p + 1
     rep movsb ;mismo que el negatico (ver)
     ;rellenar con ceros -------
+    rellenar:
     cld
     xor eax, eax
+    xor ecx, ecx
+    xor edi, edi
     mov ecx, [ebp + 12]
     mov edi, [ebp + 16]
     ; no se incrementa p tambien se ha de eliminar

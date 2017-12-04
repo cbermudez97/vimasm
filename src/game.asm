@@ -201,7 +201,7 @@ UpArrow_Pressed:
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
-  cmp dword [eax], 0
+  cmp byte [eax], 0
   jne .end
   push dword -1
   call mov_cursor
@@ -218,7 +218,7 @@ DownArrow_Pressed:
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
-  cmp dword [eax], 0
+  cmp byte [eax], 0
   jne .end
   push dword -1
   call mov_cursor
@@ -235,7 +235,7 @@ LeftArrow_Pressed:
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
-  cmp dword [eax], 0
+  cmp byte [eax], 0
   jne .end
   push dword -1
   call mov_cursor
@@ -254,7 +254,7 @@ RightArrow_Pressed:
   add eax, [CURSOR]
   cmp eax, [END]
   ja .endtext
-  cmp dword [eax], 0
+  cmp byte [eax], 0
   jne .end
   push dword 1
   call mov_cursor
