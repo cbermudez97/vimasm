@@ -270,21 +270,42 @@ RightArrow_Pressed:
 
 Backspace_Pressed:
   push eax
+  push ecx
+  push ebx
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
   cmp eax, TEXT
   je .end
   call LeftArrow_Pressed
+
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
+  mov ecx, eax
+  .loop:
+  inc ecx
+  cmp byte [ecx], 0
+  jne .endloop
+  cmp ecx, [END]
+  je .endloop
+  jmp .loop
+  .endloop:
+  sub ecx, eax
   push eax
-  push dword -1
+  mov eax, ecx
+  mov ebx, -1
+  imul ebx
+  mov ecx, eax
+  pop eax
+  push eax
+  push ecx
   push dword [END]
   call traslate
-  dec dword [END]
+  add dword [END], ecx
   .end:
+  pop ebx
+  pop ecx
   pop eax
   ret
 
