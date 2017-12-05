@@ -23,6 +23,7 @@ extern scan
 extern calibrate
 extern printscreen
 extern putc
+extern fix
 extern traslate
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
@@ -135,7 +136,16 @@ get_input:
       ;Move cursor one position
       push dword 1
       call mov_cursor
-
+      ;fixing
+      xor eax, eax
+      mov edx, TEXT
+      add edx, [SCREEN_START]
+      add edx, [CURSOR]
+      push edx
+      push dword 1
+      push dword [END]
+      call fix
+      add [END], eax
     ;End get_input
     end_input:
     pop ax
@@ -303,6 +313,16 @@ Backspace_Pressed:
   push dword [END]
   call traslate
   add dword [END], ecx
+  ;fixing testing
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  push eax
+  xor eax, eax
+  push ecx
+  push dword [END]
+  call fix
+  add [END], eax
   .end:
   pop ebx
   pop ecx
@@ -337,6 +357,16 @@ Enter_Pressed:
   add dword [END], ebx
   push ebx
   call mov_cursor
+  ;fixing
+  mov edx, TEXT
+  add edx, [SCREEN_START]
+  add edx, [CURSOR]
+  push edx
+  push ebx
+  push dword [END]
+  call fix
+  add [END], eax
+  ;endfixing
   pop ebx
   pop edx
   pop eax
