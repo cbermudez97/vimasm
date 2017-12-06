@@ -1,6 +1,6 @@
 section .text
 
-extern game
+extern insertion
 
 global main
 main:
@@ -12,4 +12,4 @@ main:
   mov al, 0xFF
   out dx, al
 
-  jmp game
+  jmp insertion

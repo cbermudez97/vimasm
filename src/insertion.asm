@@ -51,8 +51,8 @@ mov %2, [ASCII_CODE_S + %1]
   call clear
 %endmacro
 
-global game
-game:
+global insertion
+insertion:
   ; Initialize game
   FILL_SCREEN BG.BLACK
   ; Calibrate the timing
@@ -60,7 +60,7 @@ game:
   mov byte [TEXT], 3
   mov dword [END], TEXT
   ; Insertion mode main loop
-  game.loop:
+  .loop:
     .input:
       ;Cleaning registries.
       xor eax, eax
@@ -78,7 +78,7 @@ game:
       ;End printing the screen.
       call get_input;Get the Input.
     ; Main loop.
-    jmp game.loop
+    jmp .loop
     ret
 
 get_input:
