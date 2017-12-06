@@ -9,6 +9,10 @@ ASCII_CODE_S  db  0,27,33,64,35,36,37,94,38,42,40,41,95,43,8,9,81 ,87 ,69 ,82 ,8
 ASCII_CODE_LEN dd 83
 
 ;Data related to the text and cursor.
+global TEXT
+global SCREEN_START
+global CURSOR
+global END
 TEXT times 10000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0

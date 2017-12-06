@@ -3,6 +3,8 @@ timer dd 0,0
 section .text
 extern interval
 extern blinkcursor
+extern setcursor
+extern CURSOR
 ; scan()
 ; Get the hex code of the input if available otherwise zero
 global scan
@@ -10,13 +12,15 @@ scan:
   ;Cleaning eax.
   xor eax, eax
   ;Updating the Cursor
-  push dword 333
+  push dword 500
   push dword timer
   call interval
   cmp al, 0
   je continue
   yes:
-  ;call blinkcursor
+  call blinkcursor
+  push dword [CURSOR]
+  call setcursor
   continue:
   ;Cheking the status of input buffer.
   in  al, 0x64
