@@ -25,6 +25,7 @@ extern printscreen
 extern putc
 extern fix
 extern traslate
+extern setcursor
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -76,6 +77,10 @@ insertion:
       push eax
       call printscreen
       ;End printing the screen.
+      ;Printing the cursor
+      push dword [CURSOR]
+      call setcursor
+      ;End printing the cursor
       call get_input;Get the Input.
     ; Main loop.
     jmp .loop
@@ -225,6 +230,14 @@ DownArrow_Pressed:
   push eax
   push dword 80
   call mov_cursor
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  cmp eax, [END]
+  jle .loop
+  push dword -80
+  call mov_cursor
+  jmp .end
   .loop:
   mov eax, TEXT
   add eax, [SCREEN_START]

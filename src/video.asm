@@ -1,4 +1,7 @@
 %include "video.mac"
+section .data
+blink db 1
+
 
 ; Frame buffer location
 %define FBUFFER 0xB8000
@@ -14,12 +17,23 @@
 %endmacro
 
 ; SETCURSOR(word cursor position,CURSOR.ON to activate the cursor or CURSOR.OFF to remove the cursor)
-%macro SETCURSOR 2.nolist
+%macro SETCURSOR 1.nolist
     push dx
+    cmp byte [blink], 1
+    jne .no
+    .yes:
     mov dx, %1
-    or dx, %2
+    or dx, CURSOR.ON|BG.GRAY
     or dx, FG.BLACK
     mov %1, dx
+    jmp .end
+    .no:
+    mov dx, %1
+    or dx, FG.BRIGHT|FG.GRAY
+    or dx, BG.BLACK
+    mov %1, dx
+    jmp .end 
+    .end:
     pop dx
 %endmacro
 
@@ -27,6 +41,45 @@
 
 
 section .text
+
+global blinkcursor
+blinkcursor:
+xor byte [blink], 1
+ret
+
+global setcursor
+setcursor:
+    push ebp
+    mov ebp, esp
+    push eax
+    push ebx
+    push ecx
+    push edx
+    xor eax, eax
+    xor ebx, ebx
+    xor edx, edx
+    mov eax, [ebp + 8]
+    mov ebx, 2
+    mul ebx
+    mov dx, [FBUFFER + eax]
+    xor dh, dh
+    cmp byte [blink], 1
+    jne .no
+    .yes:
+    or dx, CURSOR.ON|BG.GRAY
+    or dx, FG.BLACK
+    jmp .end
+    .no:
+    or dx, FG.BRIGHT|FG.GRAY
+    or dx, BG.BLACK
+    .end:
+    mov [FBUFFER + eax ], dx
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    pop ebp
+    ret 4
 
 ; clear(byte char, byte attrs)
 ; Clear the screen by filling it with char and attributes.
@@ -96,18 +149,9 @@ mov ecx, 1920 ; cantidad de veces que se ejectua el ciclo
 .imprimir:
 xor eax,eax
 lodsb
-cmp esi, ebx ; comparar si esta el cursor en esa direccion
-jnz .nocursor
-SETCURSOR ax, CURSOR.ON|BG.GRAY ; prender el cursor
-cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
-jz .rellenar
-cmp al , 10; es un salto de linea
-jz .rellenar
-cmp al , 3 ;es un fin de archivo
-jz .rellenar
-stosw
-jmp .cont
-.nocursor: ; continuar
+;cmp esi, ebx ; comparar si esta el cursor en esa direccion
+;jnz .nocursor
+;SETCURSOR ax ; prender el cursor
 cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
 jz .rellenar
 cmp al , 10; es un salto de linea
