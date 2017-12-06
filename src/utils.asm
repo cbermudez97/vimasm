@@ -101,7 +101,7 @@ fix:;tests are needed
     jmp greater
     nograter:
     sub ecx, [esp]
-    mov eax, ecx
+    add eax, ecx
     add esp, 4
     ;traslate to the correct position
     inc edx
@@ -115,10 +115,11 @@ fix:;tests are needed
   jmp loop
   fixagain:
   ;recursion
-  ;push eax
-  ;push ecx
-  ;push dword [ebp + 8]
-  ;call fix
+  add ecx, [ebp + 12]
+  push edx
+  push ecx
+  push dword [ebp + 8]
+  call fix
   endfix:
   pop edx
   pop ecx

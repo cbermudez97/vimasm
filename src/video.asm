@@ -18,6 +18,7 @@
     push dx
     mov dx, %1
     or dx, %2
+    or dx, FG.BLACK
     mov %1, dx
     pop dx
 %endmacro
@@ -97,14 +98,27 @@ xor eax,eax
 lodsb
 cmp esi, ebx ; comparar si esta el cursor en esa direccion
 jnz .nocursor
-SETCURSOR ax, CURSOR.ON ; prender el cursor
+SETCURSOR ax, CURSOR.ON|BG.GRAY ; prender el cursor
+cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
+jz .rellenar
+cmp al , 10; es un salto de linea
+jz .rellenar
+cmp al , 3 ;es un fin de archivo
+jz .rellenar
+stosw
+jmp .cont
 .nocursor: ; continuar
 cmp al , 0 ; compara el caracter en al si es cero (no jode lo de arriba)
+jz .rellenar
+cmp al , 10; es un salto de linea
+jz .rellenar
+cmp al , 3 ;es un fin de archivo
 jz .rellenar
 ; drawing char
 or ax, FG.BRIGHT
 or ax, FG.GRAY
 or ax, BG.BLACK
+.impress:
 stosw
 jmp .cont
 ; filling the cell

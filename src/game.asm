@@ -141,6 +141,7 @@ get_input:
       mov edx, TEXT
       add edx, [SCREEN_START]
       add edx, [CURSOR]
+      xor eax, eax
       push edx
       push dword 1
       push dword [END]
@@ -358,6 +359,7 @@ Enter_Pressed:
   push ebx
   call mov_cursor
   ;fixing
+  xor eax, eax
   mov edx, TEXT
   add edx, [SCREEN_START]
   add edx, [CURSOR]
