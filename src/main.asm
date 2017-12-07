@@ -1,6 +1,7 @@
 section .text
 
 extern insertion
+extern presentation
 
 global main
 main:
@@ -12,4 +13,4 @@ main:
   mov al, 0xFF
   out dx, al
 
-  jmp insertion
+  jmp presentation
