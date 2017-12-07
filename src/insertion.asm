@@ -112,6 +112,9 @@ get_input:
     bind KEY.RightArrow , RightArrow_Pressed
     bind KEY.BKSP , Backspace_Pressed
     bind KEY.Enter , Enter_Pressed
+    bind KEY.R_SH , Shift_Pressed
+    bind KEY.R_SH+128 , Shift_Released
+    bind KEY.Tab, Tab_Pressed
 
     ;Update the the text if char.        
       xor ebx, ebx
@@ -206,11 +209,17 @@ mov_cursor:
 
 ;Bindings Methods
 Shift_Pressed:
+  cmp  byte [SHIFT_STATUS] , 1
+  je .end
   mov byte [SHIFT_STATUS], 1
+  .end:
   ret
 
 Shift_Released:
+  cmp  byte [SHIFT_STATUS] , 0
+  je .end
   mov byte [SHIFT_STATUS], 0
+  .end:
   ret
 
 UpArrow_Pressed:
@@ -295,6 +304,43 @@ RightArrow_Pressed:
   .end:
   pop eax
   ret
+
+Tab_Pressed:
+  push eax
+  push ecx
+  push ebx
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  push eax
+  push dword 4
+  push dword [END]
+  call traslate
+  mov ebx, eax
+  mov ecx, 4
+  .loop:
+  mov byte [ebx], 32
+  inc ebx
+  dec ecx
+  cmp ecx, 0
+  je .end
+  jmp .loop
+  .end:
+  push dword 4
+  call mov_cursor
+  add dword [END], 4
+  mov eax, TEXT
+  add eax, [SCREEN_START]
+  add eax, [CURSOR]
+  push eax
+  push dword 4
+  push dword [END]
+  call fix
+  pop ebx
+  pop ecx
+  pop eax
+  ret
+
 
 Backspace_Pressed:
   push eax
