@@ -65,8 +65,6 @@ insertion:
   mov byte [TEXT], 3
   mov dword [END], TEXT
   ; Insertion mode main loop
-  ; Temp seting the cursor to zero
-  mov dword [CURSOR], 0
   .loop:
     .input:
       ;Cleaning registries.

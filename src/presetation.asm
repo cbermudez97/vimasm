@@ -18,6 +18,7 @@ presentation:
     .loop:
     xor eax, eax
     call scan
+    mov dword [CURSOR], 0
     ;jmp normal
     jmp insertion
     jmp .loop
