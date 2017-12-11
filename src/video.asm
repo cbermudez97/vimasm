@@ -6,6 +6,20 @@ blink db 1
 ; Frame buffer location
 %define FBUFFER 0xB8000
 
+; swap ecx para interacambiar foregraund con backgraund color
+%macro SWAP 1 .nolist
+push eax
+push ebx
+xor eax,eax
+xor ebx,ebx
+mov eax, [%1]
+mov bh,al
+mov bl,ah
+mov [%1], bx 
+pop ebx
+pop eax
+%endmacro 
+
 ; FBOFFSET(byte row, byte column)
 %macro FBOFFSET 2.nolist
     xor eax, eax
@@ -181,3 +195,37 @@ pop ebx
 pop eax
 pop ebp
 ret 8
+
+;requiere que se le pase como parametro la pos inicial y la final para intercambiar fgraund con backgraund color
+global interchange
+interchange:
+push ebp
+mov ebp, esp
+push eax
+push ebx
+push ecx
+push edx
+xor eax,eax
+xor ebx,ebx
+xor ecx,ecx
+xor edx,edx
+mov ax, [ebp + 8]
+mov cx, [ebp + 12]
+sub cx, ax
+inc cx
+mov edx, FBUFFER
+ciclo:
+add edx, eax
+xor ebx,ebx
+mov bx, word [edx]
+SWAP bx
+inc eax
+dec cx
+cmp cx, 0
+jnz ciclo
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp 
+ret 
