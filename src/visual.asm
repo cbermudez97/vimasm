@@ -1,14 +1,16 @@
 %include "keyboard.mac"
-section .data
-CONTROL_STATUS db 0
 
+section .data
+global RES_START
+global RES_END
+RES_START dd 0;initial position
+RES_END dd 0;end position
 
 section .text
 extern CURSOR
 extern SCREEN_START
 extern TEXT
-extern insertion
-extern visual
+extern normal
 extern printscreen
 extern scan
 extern UpArrow_Pressed
@@ -24,8 +26,8 @@ extern LeftArrow_Pressed
   %%next:
 %endmacro
 
-global normal
-normal:
+global visual
+visual:
     .loop:
       ;Cleaning registries.
       xor eax, eax
@@ -50,49 +52,20 @@ get_input:
     call scan
     push ax
     ;bindings here
-    bind KEY.I, to_insertion
+    bind KEY.ESC, to_normal
     bind KEY.UpArrow , UpArrow_Pressed
     bind KEY.DownArrow , DownArrow_Pressed
     bind KEY.LeftArrow , LeftArrow_Pressed
-    bind KEY.RightArrow , RightArrow_Pressed
-    bind KEY.Ctrl, Control_Pressed
-    bind KEY.Ctrl+128, Control_Released
-    bind KEY.V, to_visual  
+    bind KEY.RightArrow , RightArrow_Pressed  
     end_input:
     pop ax
     pop eax
     ret
 
-to_insertion:
-  add esp,4;the return dir
-  pop ax;get input ax
-  pop eax;get input eax
-  add esp,4;the get input return dir
-  push dword insertion
-  ret
-
-to_visual:
-  cmp byte [CONTROL_STATUS], 0
-  je .continue
-  add esp,4
-  pop ax
-  pop eax
-  add esp,4
-  push dword visual
-  .continue:
-  ret
-
-Control_Pressed:
-  cmp  byte [CONTROL_STATUS] , 1
-  je .end
-  mov byte [CONTROL_STATUS], 1
-  .end:
-  ret
-
-Control_Released:
-  cmp  byte [CONTROL_STATUS] , 0
-  je .end
-  mov byte [CONTROL_STATUS], 0
-  .end:
-  ret
-    
+to_normal:
+   add esp,4;the return dir
+   pop ax;get input ax
+   pop eax;get input eax
+   add esp,4;the get input return dir
+   push dword normal
+   ret
