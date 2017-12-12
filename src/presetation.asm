@@ -5,10 +5,11 @@ PRES db "***********************************************************************
 
 section .text
 extern CURSOR
+extern TEXT
+extern END
 extern scan
 extern printscreen
-extern insertion
-;extern normal
+extern normal
 
 global presentation
 presentation:
@@ -18,8 +19,9 @@ presentation:
     .loop:
     xor eax, eax
     call scan
+    ;Initializing the Text
+    mov byte [TEXT], 3
+    mov dword [END], TEXT
     mov dword [CURSOR], 0
-    ;jmp normal
-    jmp insertion
-    jmp .loop
+    push dword normal;go to normal mode
     ret

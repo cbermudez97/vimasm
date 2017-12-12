@@ -30,6 +30,7 @@ extern putc
 extern fix
 extern traslate
 extern setcursor
+extern normal
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -41,8 +42,8 @@ mov %2, [ASCII_CODE_S + %1]
 %endmacro
 
 
-; Bind a key to a procedure
-%macro bind 2
+; bindc a key to a procedure
+%macro bindc 2
   cmp byte [esp], %1
   jne %%next
   call %2
@@ -59,14 +60,12 @@ mov %2, [ASCII_CODE_S + %1]
 global insertion
 insertion:
   ; Initialize game
-  FILL_SCREEN BG.BLACK
+  ;FILL_SCREEN BG.BLACK
   ; Calibrate the timing
   call calibrate
-  mov byte [TEXT], 3
-  mov dword [END], TEXT
   ; Insertion mode main loop
-  .loop:
-    .input:
+  loop:
+    input:
       ;Cleaning registries.
       xor eax, eax
       xor ebx, ebx
@@ -87,7 +86,7 @@ insertion:
       ;End printing the cursor
       call get_input;Get the Input.
     ; Main loop.
-    jmp .loop
+    jmp loop
     ret
 
 get_input:
@@ -104,18 +103,19 @@ get_input:
     je end_input
     
     ; Check for bindings.(enter,backspace...)
-    bind KEY.L_SH , Shift_Pressed
-    bind KEY.L_SH+128 , Shift_Released
-    bind KEY.UpArrow , UpArrow_Pressed
-    bind KEY.DownArrow , DownArrow_Pressed
-    bind KEY.LeftArrow , LeftArrow_Pressed
-    bind KEY.RightArrow , RightArrow_Pressed
-    bind KEY.BKSP , Backspace_Pressed
-    bind KEY.Enter , Enter_Pressed
-    bind KEY.R_SH , Shift_Pressed
-    bind KEY.R_SH+128 , Shift_Released
-    bind KEY.Tab, Tab_Pressed
-
+    bindc KEY.L_SH , Shift_Pressed
+    bindc KEY.L_SH+128 , Shift_Released
+    bindc KEY.UpArrow , UpArrow_Pressed
+    bindc KEY.DownArrow , DownArrow_Pressed
+    bindc KEY.LeftArrow , LeftArrow_Pressed
+    bindc KEY.RightArrow , RightArrow_Pressed
+    bindc KEY.BKSP , Backspace_Pressed
+    bindc KEY.Enter , Enter_Pressed
+    bindc KEY.R_SH , Shift_Pressed
+    bindc KEY.R_SH+128 , Shift_Released
+    bindc KEY.Tab, Tab_Pressed
+    bindc KEY.ESC, to_normal
+    continue:
     ;Update the the text if char.        
       xor ebx, ebx
       cmp eax, [ASCII_CODE_LEN]
@@ -168,6 +168,7 @@ get_input:
     pop ecx
     ret
 
+global mov_cursor
 ;New method
 mov_cursor:
   push ebp
@@ -222,6 +223,7 @@ Shift_Released:
   .end:
   ret
 
+global UpArrow_Pressed
 UpArrow_Pressed:
   push eax
   push dword -80
@@ -239,6 +241,7 @@ UpArrow_Pressed:
   pop eax
   ret
 
+global DownArrow_Pressed
 DownArrow_Pressed:
   push eax
   push dword 80
@@ -264,6 +267,7 @@ DownArrow_Pressed:
   pop eax
   ret
   
+global LeftArrow_Pressed
 LeftArrow_Pressed:
   push eax
   push dword -1
@@ -280,7 +284,8 @@ LeftArrow_Pressed:
   .end:
   pop eax
   ret
-  
+
+global RightArrow_Pressed
 RightArrow_Pressed:
   push eax
   push dword 1
@@ -435,4 +440,15 @@ Enter_Pressed:
   pop ebx
   pop edx
   pop eax
+  ret
+
+  to_normal:;Change to Normal Mode
+  add esp, 4
+  pop ax
+  pop eax
+  pop edx
+  pop ebx
+  pop ecx
+  add esp, 4
+  push dword normal
   ret
