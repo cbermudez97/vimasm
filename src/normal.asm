@@ -1,5 +1,7 @@
 %include "keyboard.mac"
 section .data
+CONTROL_STATUS db 0
+
 
 section .text
 extern CURSOR
@@ -48,6 +50,12 @@ get_input:
     push ax
     ;bindings here
     bind KEY.I, to_insertion
+    bind KEY.UpArrow , UpArrow_Pressed
+    bind KEY.DownArrow , DownArrow_Pressed
+    bind KEY.LeftArrow , LeftArrow_Pressed
+    bind KEY.RightArrow , RightArrow_Pressed
+    bind KEY.Ctrl, Control_Pressed
+    bind KEY.Ctrl+128, Control_Released  
     end_input:
     pop ax
     pop eax
@@ -60,3 +68,18 @@ get_input:
     add esp,4;the get input return dir
     push dword insertion
     ret
+
+Control_Pressed:
+  cmp  byte [CONTROL_STATUS] , 1
+  je .end
+  mov byte [CONTROL_STATUS], 1
+  .end:
+  ret
+
+Control_Released:
+  cmp  byte [CONTROL_STATUS] , 0
+  je .end
+  mov byte [CONTROL_STATUS], 0
+  .end:
+  ret
+    
