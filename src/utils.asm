@@ -1,8 +1,17 @@
 %include "utils.mac"
 
+section .data
+resto dd 0
+return dd 0
+
 section .text
+extern TEXT
+extern SCREEN_START
+extern CURSOR
+extern END
 global traslate
 global fix
+
 traslate:
     SALVAR_REGISTROS
     ; guardando la cantidad de veces a mover 
@@ -62,7 +71,7 @@ traslate:
 
 ;The fix method
 ;param1 = start, param2 = k ,param3 = end
-fix:;tests are needed
+fix:
   push ebp
   mov ebp, esp
   push ebx
@@ -126,3 +135,65 @@ fix:;tests are needed
   pop ebx
   pop ebp
   ret 12
+
+global newfix
+newfix:
+  pushad
+  ;Calculating r from TEXT = 80*x + r
+  xor edx, edx
+  mov eax, TEXT
+  mov ebx, 80
+  div ebx
+  mov [resto], edx
+  ;Moving throug the text and fixing the enters
+  mov ecx, TEXT
+  add ecx, [SCREEN_START]
+  add ecx, [CURSOR]
+  checker:
+  ;Checking if end line
+  cmp byte [ecx], 10
+  je endline
+  jmp continue
+  endline:
+  ;end of line
+  ;counting zeros
+    mov ebx, ecx
+    inc ebx
+    zeros:
+      cmp byte [ebx], 0
+      jne nozeros
+      inc ebx
+      jmp zeros
+    nozeros:
+    ;store the result in ebx
+    sub ebx, ecx
+    dec ebx
+    ;counting the real number of zeros rz = 80 - (text+screen_start+cursor % 80) + text%80
+    mov eax, ecx
+    sub eax, TEXT
+    sub eax, [SCREEN_START]
+    push ebx
+    mov ebx, 80
+    xor edx, edx
+    div ebx
+    sub ebx, edx
+    ;calculating the correction c = rz - az
+    sub ebx, [esp]
+    add esp, 4
+    inc ecx
+    push ecx
+    dec ecx
+    dec ebx
+    push ebx
+    push dword [END]
+    call traslate
+    add [END], ebx
+  continue:;not a end of line
+  ;Checking if end of file
+  cmp ecx, [END]
+  je endchecker
+  inc ecx
+  jmp checker
+  endchecker:
+  popad
+  ret

@@ -22,6 +22,7 @@ END dd 0
 SHIFT_STATUS db 0
 
 section .text
+extern newfix
 extern blink
 extern clear
 extern scan
@@ -150,16 +151,7 @@ get_input:
       push dword 1
       call mov_cursor
       ;fixing
-      xor eax, eax
-      mov edx, TEXT
-      add edx, [SCREEN_START]
-      add edx, [CURSOR]
-      xor eax, eax
-      push edx
-      push dword 1
-      push dword [END]
-      call fix
-      add [END], eax
+      call newfix
     ;End get_input
     end_input:
     pop ax
@@ -339,13 +331,7 @@ Tab_Pressed:
   push dword 4
   call mov_cursor
   add dword [END], 4
-  mov eax, TEXT
-  add eax, [SCREEN_START]
-  add eax, [CURSOR]
-  push eax
-  push dword 4
-  push dword [END]
-  call fix
+  call newfix
   pop ebx
   pop ecx
   pop eax
@@ -362,7 +348,6 @@ Backspace_Pressed:
   cmp eax, TEXT
   je .end
   call LeftArrow_Pressed
-
   mov eax, TEXT
   add eax, [SCREEN_START]
   add eax, [CURSOR]
@@ -388,15 +373,7 @@ Backspace_Pressed:
   call traslate
   add dword [END], ecx
   ;fixing testing
-  mov eax, TEXT
-  add eax, [SCREEN_START]
-  add eax, [CURSOR]
-  push eax
-  xor eax, eax
-  push ecx
-  push dword [END]
-  call fix
-  add [END], eax
+  call newfix
   .end:
   pop ebx
   pop ecx
@@ -432,15 +409,7 @@ Enter_Pressed:
   push ebx
   call mov_cursor
   ;fixing
-  xor eax, eax
-  mov edx, TEXT
-  add edx, [SCREEN_START]
-  add edx, [CURSOR]
-  push edx
-  push ebx
-  push dword [END]
-  call fix
-  add [END], eax
+  call newfix
   ;endfixing
   pop ebx
   pop edx
