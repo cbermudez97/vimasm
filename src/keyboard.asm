@@ -1,4 +1,5 @@
 section .data
+global timer
 timer dd 0,0
 section .text
 extern interval
@@ -12,12 +13,17 @@ scan:
   ;Cleaning eax.
   xor eax, eax
   ;Updating the Cursor
+  cmp dword [timer], 0
+  jne yes
+  cmp dword [timer+4], 0
+  jne yes
+  jmp continue
+  yes:
   push dword 500
   push dword timer
   call interval
   cmp al, 0
   je continue
-  yes:
   call blinkcursor
   push dword [CURSOR]
   call setcursor

@@ -63,8 +63,7 @@ global insertion
 insertion:
   ; Initialize game
   ;FILL_SCREEN BG.BLACK
-  ; Calibrate the timing
-  call calibrate
+  
   ; Insertion mode main loop
   loop:
     input:

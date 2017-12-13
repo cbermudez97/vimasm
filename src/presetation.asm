@@ -10,13 +10,14 @@ extern END
 extern scan
 extern printscreen
 extern normal
+extern timer
 
 global presentation
 presentation:
+    mov dword [timer], 0
+    mov dword [timer+4], 0
     push PRES
     call printscreen
-    mov dword [CURSOR], 1920
-    .loop:
     xor eax, eax
     call scan
     ;Initializing the Text

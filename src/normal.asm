@@ -15,6 +15,7 @@ extern UpArrow_Pressed
 extern DownArrow_Pressed
 extern RightArrow_Pressed
 extern LeftArrow_Pressed
+extern timer
 
 %macro bind 2
   cmp byte [esp], %1
@@ -26,6 +27,9 @@ extern LeftArrow_Pressed
 
 global normal
 normal:
+    rdtsc
+    mov [timer], eax
+    mov [timer+4], edx
     .loop:
       ;Cleaning registries.
       xor eax, eax
@@ -95,4 +99,3 @@ Control_Released:
   mov byte [CONTROL_STATUS], 0
   .end:
   ret
-    

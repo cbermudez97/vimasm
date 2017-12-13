@@ -1,6 +1,6 @@
 section .text
 
-extern insertion
+extern calibrate
 extern presentation
 
 global main
@@ -13,4 +13,6 @@ main:
   mov al, 0xFF
   out dx, al
 
+  call calibrate
+  
   jmp presentation
