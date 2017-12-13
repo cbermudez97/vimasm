@@ -1,5 +1,6 @@
 %include "video.mac"
 section .data
+global blink
 blink db 1
 
 

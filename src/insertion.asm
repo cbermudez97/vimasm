@@ -22,6 +22,7 @@ END dd 0
 SHIFT_STATUS db 0
 
 section .text
+extern blink
 extern clear
 extern scan
 extern calibrate
@@ -174,6 +175,10 @@ mov_cursor:
   push ebp
   mov ebp, esp
   push ecx
+
+  mov byte [blink], 1
+  push dword [CURSOR]
+  call setcursor
 
   mov ecx, [ebp + 8]
   add dword [CURSOR], ecx
