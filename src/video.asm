@@ -237,15 +237,14 @@ mov ebp,esp
 push eax
 push ebx
 push ecx
-xor eax,eax
-xor ebx,ebx
-xor ecx,ecx
-
+xor eax, eax
+xor ebx, ebx
+xor ecx, ecx
 ; cuantos me voy a mover
 mov eax, [ebp + 8]
 mov ecx, [ebp + 12]
 sub ecx, eax
-;inc ecx
+inc ecx
 
 ; el tamaño de la pantalla es de word no de byte
 shl eax , 1
@@ -257,21 +256,19 @@ xor eax,eax
 
 .ciclo:
 mov ax, [edi]
+cmp al, 0
+je .continue
+cmp al, 3
+je .continue
+cmp al, 10
+je .continue
 ror ah,4
-and ah, 0x7FF
-or ah, 0x08
-mov [edi],ax
-;and ah, 
-;and al, 0x07
-;mov ah, bl
-;and ah, 0x07
-;or al, 0x08
+mov [edi], ax
+.continue:
 add edi,2
 dec ecx
-cmp ecx,0
+cmp ecx, 0
 jnz .ciclo
-
-
 pop ecx
 pop ebx
 pop eax

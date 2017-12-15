@@ -27,6 +27,7 @@ extern RightArrow_Pressed
 extern LeftArrow_Pressed
 extern COPY_FROM
 extern printconsole
+extern interchange
 extern setcursor
 
 %macro bind 2
@@ -50,6 +51,11 @@ visual:
       xor ebx, ebx
       xor ecx, ecx
       xor edx, edx
+      ;Calculate
+      mov eax, TEXT
+      add eax, [SCREEN_START]
+      add eax, [CURSOR]
+      mov dword [RES_END], eax
       ;Printing the screen.
       mov eax, TEXT
       add eax, [SCREEN_START]
@@ -58,6 +64,8 @@ visual:
       sub eax, [CURSOR]
       push eax
       call printscreen
+      ;Highlight text
+      call highlight
       ;Print Cursor
       push dword [CURSOR]
       call setcursor
@@ -66,10 +74,6 @@ visual:
       call printconsole
       ;Get the input
       call get_input
-      mov eax, TEXT
-      add eax, [SCREEN_START]
-      add eax, [CURSOR]
-      mov dword [RES_END], eax
     cmp byte [ENDING], 1
     je .return
     jmp .loop
@@ -134,5 +138,44 @@ fixcopied:
   jne .continue
   dec dword [RES_SIZE]
   .continue:
+  popad
+  ret
+
+highlight:
+  pushad
+  mov eax, [RES_START]
+  mov ebx, [RES_END]
+  sub eax, TEXT
+  sub eax, [SCREEN_START]
+  sub ebx, TEXT
+  sub ebx, [SCREEN_START]
+  cmp eax, 0
+  jge .next
+  mov eax, 0
+  .next:
+  cmp eax, 1920
+  jle .next1
+  mov eax, 1920
+  .next1:
+  cmp ebx, 0
+  jge .next2
+  mov ebx, 0
+  .next2:
+  cmp ebx, 1920
+  jle .next3
+  mov ebx, 1920
+  .next3:
+  cmp eax, ebx
+  jb .lesser
+  .greater:
+  push eax
+  push ebx
+  call interchange
+  jmp .endcmp
+  .lesser:
+  push ebx
+  push eax
+  call interchange
+  .endcmp:
   popad
   ret
