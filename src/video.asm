@@ -200,32 +200,47 @@ ret 8
 global interchange
 interchange:
 push ebp
-mov ebp, esp
+mov ebp,esp
 push eax
 push ebx
 push ecx
-push edx
 xor eax,eax
 xor ebx,ebx
 xor ecx,ecx
-xor edx,edx
-mov ax, [ebp + 8]
-mov cx, [ebp + 12]
-sub cx, ax
-inc cx
-mov edx, FBUFFER
-ciclo:
-add edx, eax
-xor ebx,ebx
-mov bx, word [edx]
-SWAP bx
-inc eax
-dec cx
-cmp cx, 0
-jnz ciclo
-pop edx
+
+; cuantos me voy a mover
+mov eax, [ebp + 8]
+mov ecx, [ebp + 12]
+sub ecx, eax
+;inc ecx
+
+; el tamaño de la pantalla es de word no de byte
+shl eax , 1
+; donde empiezo a resaltar
+mov edi, 0xB8000
+add edi, eax
+
+xor eax,eax
+
+.ciclo:
+mov ax, [edi]
+ror ah,4
+and ah, 0x7FF
+or ah, 0x08
+mov [edi],ax
+;and ah, 
+;and al, 0x07
+;mov ah, bl
+;and ah, 0x07
+;or al, 0x08
+add edi,2
+dec ecx
+cmp ecx,0
+jnz .ciclo
+
+
 pop ecx
 pop ebx
 pop eax
-pop ebp 
-ret 
+pop ebp
+ret 8
