@@ -182,3 +182,35 @@ pop ebx
 pop eax
 pop ebp
 ret 8
+
+;param text to print(dir)
+global printconsole
+printconsole:
+push ebp
+mov ebp, esp
+push esi
+push edi
+push ecx
+push eax
+cld
+mov esi, [ebp + 8]
+mov edi, 1920
+shl edi, 1
+add edi, FBUFFER
+mov ecx, 80
+.loop:
+xor eax, eax
+lodsb
+or ax, BG.BLACK|FG.GRAY|FG.BRIGHT
+stosw
+dec ecx
+cmp ecx, 0
+je .endloop
+jmp .loop
+.endloop:
+pop eax
+pop ecx
+pop edi
+pop esi
+pop ebp
+ret 4

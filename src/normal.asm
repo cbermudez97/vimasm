@@ -1,12 +1,19 @@
 %include "keyboard.mac"
 section .data
 CONTROL_STATUS db 0
+global COPY_FROM
+COPY_FROM db 0; 0-no copy 1-visual simple 2-visual line ...
+NORMAL_CONSOLE db " --NORMAL--                                                                     "
 
 
 section .text
+extern RES_SIZE
 extern CURSOR
+extern COPY
 extern SCREEN_START
 extern TEXT
+extern END
+extern traslate
 extern insertion
 extern visual
 extern printscreen
@@ -16,6 +23,11 @@ extern DownArrow_Pressed
 extern RightArrow_Pressed
 extern LeftArrow_Pressed
 extern timer
+extern RES_START
+extern RES_END
+extern newfix
+extern printconsole
+extern setcursor
 
 %macro bind 2
   cmp byte [esp], %1
@@ -44,7 +56,13 @@ normal:
       sub eax, [CURSOR]
       push eax
       call printscreen
+      ;Print Cursor
+      push dword [CURSOR]
+      call setcursor 
       ;Print in the Console
+      push NORMAL_CONSOLE
+      call printconsole
+      ;Get the input
       call get_input
     jmp .loop
     ret
@@ -54,37 +72,19 @@ get_input:
     call scan
     push ax
     ;bindings here
-    bind KEY.I, to_insertion
+    bind KEY.I, insertion
     bind KEY.UpArrow , UpArrow_Pressed
     bind KEY.DownArrow , DownArrow_Pressed
     bind KEY.LeftArrow , LeftArrow_Pressed
     bind KEY.RightArrow , RightArrow_Pressed
     bind KEY.Ctrl, Control_Pressed
     bind KEY.Ctrl+128, Control_Released
-    bind KEY.V, to_visual  
+    bind KEY.V, visual
+    bind KEY.P, Paste
     end_input:
     pop ax
     pop eax
     ret
-
-to_insertion:
-  add esp,4;the return dir
-  pop ax;get input ax
-  pop eax;get input eax
-  add esp,4;the get input return dir
-  push dword insertion
-  ret
-
-to_visual:
-  cmp byte [CONTROL_STATUS], 0
-  je .continue
-  add esp,4
-  pop ax
-  pop eax
-  add esp,4
-  push dword visual
-  .continue:
-  ret
 
 Control_Pressed:
   cmp  byte [CONTROL_STATUS] , 1
@@ -99,3 +99,36 @@ Control_Released:
   mov byte [CONTROL_STATUS], 0
   .end:
   ret
+
+Paste:
+cmp byte [COPY_FROM], 0
+je .none
+cmp byte [COPY_FROM], 1
+jne .line
+.simple:
+call paste_simple
+jmp .none
+.line:
+;call paste_line
+.none:
+ret
+
+paste_simple:
+pushad
+cld
+mov edi, TEXT
+add edi, [SCREEN_START]
+add edi, [CURSOR]
+mov esi, COPY
+mov eax, [RES_START]
+mov ecx, [RES_SIZE]
+;Traslating the text ecx (size of the new text)
+push edi
+push ecx
+push dword [END]
+call traslate
+add dword [END], ecx
+rep movsb
+call newfix
+popad
+ret

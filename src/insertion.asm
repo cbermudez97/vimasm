@@ -8,6 +8,10 @@ ASCII_CODE_NS db  0,27,49,50,51,52,53,54,55,56,57,48,45,61,8,9,113,119,101,114,1
 ASCII_CODE_S  db  0,27,33,64,35,36,37,94,38,42,40,41,95,43,8,9,81 ,87 ,69 ,82 ,84 ,89 ,85 ,73 ,79 ,80 ,123,125,13,0,65,83 ,68 ,70 ,71 ,72 ,74 ,75 ,76 ,58,34,126,0,124,90 ,88 ,67,86 ,66,78 ,77 ,60,62,63,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,43,0,0,0,0,0
 ASCII_CODE_LEN dd 83
 
+INSERT_CONSOLE db " --INSERT--                                                                     "
+
+ENDING db 0
+
 ;Data related to the text and cursor.
 global TEXT
 global SCREEN_START
@@ -33,6 +37,7 @@ extern fix
 extern traslate
 extern setcursor
 extern normal
+extern printconsole
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -61,12 +66,9 @@ mov %2, [ASCII_CODE_S + %1]
 
 global insertion
 insertion:
-  ; Initialize game
-  ;FILL_SCREEN BG.BLACK
-  
+  mov byte [ENDING], 0
   ; Insertion mode main loop
-  loop:
-    input:
+  .loop:
       ;Cleaning registries.
       xor eax, eax
       xor ebx, ebx
@@ -81,13 +83,19 @@ insertion:
       push eax
       call printscreen
       ;End printing the screen.
+      ;Printing the console
+      push INSERT_CONSOLE
+      call printconsole
       ;Printing the cursor
       push dword [CURSOR]
       call setcursor
       ;End printing the cursor
       call get_input;Get the Input.
     ; Main loop.
-    jmp loop
+    cmp byte [ENDING], 1
+    je .return
+    jmp .loop
+    .return:
     ret
 
 get_input:
@@ -416,12 +424,5 @@ Enter_Pressed:
   ret
 
   to_normal:;Change to Normal Mode
-  add esp, 4
-  pop ax
-  pop eax
-  pop edx
-  pop ebx
-  pop ecx
-  add esp, 4
-  push dword normal
+  mov byte [ENDING], 1
   ret

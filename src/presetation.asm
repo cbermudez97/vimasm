@@ -21,8 +21,12 @@ presentation:
     xor eax, eax
     call scan
     ;Initializing the Text
+    cmp byte [TEXT], 0
+    jne done
     mov byte [TEXT], 3
     mov dword [END], TEXT
     mov dword [CURSOR], 0
-    push dword normal;go to normal mode
+    done:
+    call normal
+    jmp presentation
     ret
