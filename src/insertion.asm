@@ -23,6 +23,7 @@ CURSOR dd 0
 END dd 0
 
 ;Shift Status
+global SHIFT_STATUS
 SHIFT_STATUS db 0
 
 section .text
@@ -213,6 +214,7 @@ mov_cursor:
 
 
 ;Bindings Methods
+global Shift_Pressed
 Shift_Pressed:
   cmp  byte [SHIFT_STATUS] , 1
   je .end
@@ -220,6 +222,7 @@ Shift_Pressed:
   .end:
   ret
 
+global Shift_Released
 Shift_Released:
   cmp  byte [SHIFT_STATUS] , 0
   je .end

@@ -10,7 +10,7 @@ RES_END dd 0;end position
 ;the text to copy
 global COPY
 COPY times 10000000 db 0
-VISUAL_CONSOLE db " --VISUAL--                                                                     "
+VISUAL_CONSOLE db " --VISUAL SIMPLE--                                                                     "
 ENDING db 0
 
 section .text
@@ -29,6 +29,10 @@ extern COPY_FROM
 extern printconsole
 extern interchange
 extern setcursor
+extern Control_Pressed
+extern Control_Released
+extern Shift_Pressed
+extern Shift_Released
 
 %macro bind 2
   cmp byte [esp], %1
@@ -38,8 +42,8 @@ extern setcursor
   %%next:
 %endmacro
 
-global visual
-visual:
+global visual_simple
+visual_simple:
     mov byte [ENDING], 0
     mov eax, TEXT
     add eax, [SCREEN_START]
@@ -90,7 +94,13 @@ get_input:
     bind KEY.DownArrow , DownArrow_Pressed
     bind KEY.LeftArrow , LeftArrow_Pressed
     bind KEY.RightArrow , RightArrow_Pressed
-    bind KEY.Y, copyselected  
+    bind KEY.Y, copyselected
+    bind KEY.Ctrl, Control_Pressed
+    bind KEY.Ctrl+128, Control_Released
+    bind KEY.L_SH , Shift_Pressed
+    bind KEY.L_SH+128 , Shift_Released
+    bind KEY.R_SH , Shift_Pressed
+    bind KEY.R_SH+128 , Shift_Released
     end_input:
     pop ax
     pop eax
