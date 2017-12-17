@@ -144,6 +144,9 @@ get_input:
     cmp byte [CONTROL_STATUS], 1
     jne nocontrol
     bindc KEY.Y, Paste
+    bindc KEY.H, erasechar
+    bindc KEY.W, eraseword
+    bindc KEY.U, eraseline
     jmp end_input
     nocontrol:
     continue:
@@ -460,3 +463,126 @@ Enter_Pressed:
   to_normal:;Change to Normal Mode
   mov byte [ENDING], 1
   ret
+
+
+
+;;Borrando con operadores de movimiento
+global eraseword
+eraseword:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi, eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp byte [edi], 32
+jnz .noesespacio
+inc edi
+jmp .seacaba
+.noesespacio:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+push edi
+push ecx
+push dword [END]
+call traslate
+add [END], ecx
+push ecx
+call mov_cursor
+call newfix
+.end:
+popad
+ret 
+
+
+global erasechar
+erasechar:
+call Backspace_Pressed
+ret
+
+global eraseline
+eraseline:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi,eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+push edi
+push ecx
+push dword [END]
+call traslate
+add [END], ecx
+cmp ecx, 0
+je .nomove
+push ecx
+call mov_cursor
+.nomove:
+call newfix
+.end:
+popad
+ret
