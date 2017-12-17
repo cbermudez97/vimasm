@@ -30,6 +30,7 @@ global SHIFT_STATUS
 SHIFT_STATUS db 0
 
 section .text
+extern Paste
 extern newfix
 extern blink
 extern clear
@@ -42,6 +43,9 @@ extern traslate
 extern setcursor
 extern normal
 extern printconsole
+extern Control_Pressed
+extern Control_Released
+extern CONTROL_STATUS
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -128,12 +132,20 @@ get_input:
     bindc KEY.DownArrow , DownArrow_Pressed
     bindc KEY.LeftArrow , LeftArrow_Pressed
     bindc KEY.RightArrow , RightArrow_Pressed
+    bindc KEY.Ctrl, Control_Pressed
+    bindc KEY.Ctrl+128, Control_Released
     bindc KEY.BKSP , Backspace_Pressed
     bindc KEY.Enter , Enter_Pressed
     bindc KEY.R_SH , Shift_Pressed
     bindc KEY.R_SH+128 , Shift_Released
     bindc KEY.Tab, Tab_Pressed
     bindc KEY.ESC, to_normal
+    ; Binds that need control
+    cmp byte [CONTROL_STATUS], 1
+    jne nocontrol
+    bindc KEY.Y, Paste
+    jmp end_input
+    nocontrol:
     continue:
     ;Update the the text if char.        
       xor ebx, ebx
@@ -334,6 +346,7 @@ RightArrow_Pressed:
   pop eax
   ret
 
+global Tab_Pressed
 Tab_Pressed:
   push eax
   push ecx
@@ -364,7 +377,7 @@ Tab_Pressed:
   pop eax
   ret
 
-
+global Backspace_Pressed
 Backspace_Pressed:
   push eax
   push ecx
@@ -407,6 +420,7 @@ Backspace_Pressed:
   pop eax
   ret
 
+global Enter_Pressed
 Enter_Pressed:
   push eax
   push edx

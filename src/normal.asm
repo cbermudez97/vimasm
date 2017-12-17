@@ -77,6 +77,7 @@ get_input:
     call scan
     push ax
     ;bindings here
+    ;Binds whit control pressed
     bind KEY.I, to_insertion
     bind KEY.UpArrow , UpArrow_Pressed
     bind KEY.DownArrow , DownArrow_Pressed
@@ -112,6 +113,7 @@ Control_Released:
   .end:
   ret
 
+global Paste
 Paste:
 cmp byte [COPY_FROM], 0
 je .none
@@ -206,7 +208,7 @@ to_insertion:
   mov byte [REPLACE], 0
   call insertion
   ret
-  
+
 to_replace:
   cmp byte [SHIFT_STATUS], 1
   jne .no
