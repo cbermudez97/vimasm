@@ -5,6 +5,7 @@ CONTROL_STATUS db 0
 global COPY_FROM
 COPY_FROM db 0; 0-no copy 1-visual simple 2-visual line ...
 NORMAL_CONSOLE db " --NORMAL--                                                                     "
+ENDING db 0
 
 section .text
 extern REPLACE
@@ -47,6 +48,7 @@ normal:
     rdtsc
     mov [timer], eax
     mov [timer+4], edx
+    mov byte [ENDING], 0
     .loop:
       ;Cleaning registries.
       xor eax, eax
@@ -69,7 +71,10 @@ normal:
       call printconsole
       ;Get the input
       call get_input
+      cmp byte [ENDING], 1
+      je .end
     jmp .loop
+    .end:
     ret
 
 get_input:
@@ -92,6 +97,7 @@ get_input:
     bind KEY.L_SH+128 , Shift_Released
     bind KEY.R_SH , Shift_Pressed
     bind KEY.R_SH+128 , Shift_Released
+    bind KEY.C, to_presentation
     end_input:
     pop ax
     pop eax
@@ -214,5 +220,12 @@ to_replace:
   jne .no
   mov byte [REPLACE], 1
   call insertion
+  .no:
+  ret
+
+to_presentation:
+  cmp byte [CONTROL_STATUS], 1
+  jne .no
+  mov byte [ENDING], 1
   .no:
   ret

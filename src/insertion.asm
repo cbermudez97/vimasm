@@ -58,7 +58,7 @@ mov %2, [ASCII_CODE_S + %1]
 
 
 ; bindc a key to a procedure
-%macro bindc 2
+%macro bind 2
   cmp byte [esp], %1
   jne %%next
   call %2
@@ -126,27 +126,27 @@ get_input:
     je end_input
     
     ; Check for bindings.(enter,backspace...)
-    bindc KEY.L_SH , Shift_Pressed
-    bindc KEY.L_SH+128 , Shift_Released
-    bindc KEY.UpArrow , UpArrow_Pressed
-    bindc KEY.DownArrow , DownArrow_Pressed
-    bindc KEY.LeftArrow , LeftArrow_Pressed
-    bindc KEY.RightArrow , RightArrow_Pressed
-    bindc KEY.Ctrl, Control_Pressed
-    bindc KEY.Ctrl+128, Control_Released
-    bindc KEY.BKSP , Backspace_Pressed
-    bindc KEY.Enter , Enter_Pressed
-    bindc KEY.R_SH , Shift_Pressed
-    bindc KEY.R_SH+128 , Shift_Released
-    bindc KEY.Tab, Tab_Pressed
-    bindc KEY.ESC, to_normal
+    bind KEY.L_SH , Shift_Pressed
+    bind KEY.L_SH+128 , Shift_Released
+    bind KEY.UpArrow , UpArrow_Pressed
+    bind KEY.DownArrow , DownArrow_Pressed
+    bind KEY.LeftArrow , LeftArrow_Pressed
+    bind KEY.RightArrow , RightArrow_Pressed
+    bind KEY.Ctrl, Control_Pressed
+    bind KEY.Ctrl+128, Control_Released
+    bind KEY.BKSP , Backspace_Pressed
+    bind KEY.Enter , Enter_Pressed
+    bind KEY.R_SH , Shift_Pressed
+    bind KEY.R_SH+128 , Shift_Released
+    bind KEY.Tab, Tab_Pressed
+    bind KEY.ESC, to_normal
     ; Binds that need control
     cmp byte [CONTROL_STATUS], 1
     jne nocontrol
-    bindc KEY.Y, Paste
-    bindc KEY.H, erasechar
-    bindc KEY.W, eraseword
-    bindc KEY.U, eraseline
+    bind KEY.Y, Paste
+    bind KEY.H, erasechar
+    bind KEY.W, eraseword
+    bind KEY.U, eraseline
     jmp end_input
     nocontrol:
     continue:
