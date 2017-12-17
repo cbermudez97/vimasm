@@ -7,6 +7,7 @@ COPY_FROM db 0; 0-no copy 1-visual simple 2-visual line ...
 NORMAL_CONSOLE db " --NORMAL--                                                                     "
 
 section .text
+extern REPLACE
 extern RES_SIZE
 extern CURSOR
 extern COPY
@@ -76,13 +77,14 @@ get_input:
     call scan
     push ax
     ;bindings here
-    bind KEY.I, insertion
+    bind KEY.I, to_insertion
     bind KEY.UpArrow , UpArrow_Pressed
     bind KEY.DownArrow , DownArrow_Pressed
     bind KEY.LeftArrow , LeftArrow_Pressed
     bind KEY.RightArrow , RightArrow_Pressed
     bind KEY.Ctrl, Control_Pressed
     bind KEY.Ctrl+128, Control_Released
+    bind KEY.R, to_replace
     bind KEY.V, to_visuals
     bind KEY.P, Paste
     bind KEY.L_SH , Shift_Pressed
@@ -194,9 +196,21 @@ jmp .end
 .next1:
 ;cmp byte [CONTROL_STATUS], 1;visual block control + v
 ;jne .next2
-
 ;.next2:
 ;visual simple
 call visual_simple
 .end:
 ret
+
+to_insertion:
+  mov byte [REPLACE], 0
+  call insertion
+  ret
+  
+to_replace:
+  cmp byte [SHIFT_STATUS], 1
+  jne .no
+  mov byte [REPLACE], 1
+  call insertion
+  .no:
+  ret

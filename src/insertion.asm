@@ -8,7 +8,8 @@ ASCII_CODE_NS db  0,27,49,50,51,52,53,54,55,56,57,48,45,61,8,9,113,119,101,114,1
 ASCII_CODE_S  db  0,27,33,64,35,36,37,94,38,42,40,41,95,43,8,9,81 ,87 ,69 ,82 ,84 ,89 ,85 ,73 ,79 ,80 ,123,125,13,0,65,83 ,68 ,70 ,71 ,72 ,74 ,75 ,76 ,58,34,126,0,124,90 ,88 ,67,86 ,66,78 ,77 ,60,62,63,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,43,0,0,0,0,0
 ASCII_CODE_LEN dd 83
 
-INSERT_CONSOLE db " --INSERT--                                                                     "
+INSERT_CONSOLE db  " --INSERT--                                                                     "
+REPLACE_CONSOLE db " --REPLACE--                                                                    "
 
 ENDING db 0
 
@@ -17,10 +18,12 @@ global TEXT
 global SCREEN_START
 global CURSOR
 global END
+global REPLACE
 TEXT times 10000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0
 END dd 0
+REPLACE db 0
 
 ;Shift Status
 global SHIFT_STATUS
@@ -85,7 +88,13 @@ insertion:
       call printscreen
       ;End printing the screen.
       ;Printing the console
+      cmp byte [REPLACE], 0
+      jne .other
       push INSERT_CONSOLE
+      jmp .noother
+      .other:
+      push REPLACE_CONSOLE
+      .noother:
       call printconsole
       ;Printing the cursor
       push dword [CURSOR]
@@ -147,12 +156,20 @@ get_input:
       mov edx, TEXT
       add edx, [SCREEN_START]
       add edx, [CURSOR]
-      ;Insert a new char
+      ;Insert a new char?
+      cmp byte [edx], 3 
+      je insert
+      cmp byte [edx], 10
+      je insert
+      cmp byte [REPLACE], 1
+      je noinsert
+      insert:
       push edx
       push dword 1
       push dword [END]
       call traslate
       inc dword [END]
+      noinsert:
       ;Write char in al to the Text
       mov [edx], bl
       ;Move cursor one position
