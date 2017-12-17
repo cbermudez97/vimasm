@@ -466,7 +466,7 @@ Enter_Pressed:
 
 
 
-;;Borrando con operadores de movimiento
+;Erasing with movement operators
 global eraseword
 eraseword:
 pushad

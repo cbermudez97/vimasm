@@ -33,6 +33,8 @@ extern Control_Pressed
 extern Control_Released
 extern Shift_Pressed
 extern Shift_Released
+extern mov_cursor
+extern CONTROL_STATUS
 
 %macro bind 2
   cmp byte [esp], %1
@@ -101,6 +103,14 @@ get_input:
     bind KEY.L_SH+128 , Shift_Released
     bind KEY.R_SH , Shift_Pressed
     bind KEY.R_SH+128 , Shift_Released
+    ; Binds that need control
+    cmp byte [CONTROL_STATUS], 1
+    jne nocontrol
+    bind KEY.H, reschar
+    bind KEY.W, resword
+    bind KEY.U, resline
+    jmp end_input
+    nocontrol:
     end_input:
     pop ax
     pop eax
@@ -189,3 +199,111 @@ highlight:
   .endcmp:
   popad
   ret
+
+;Highlighting with movement operators
+global resword
+resword:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi, eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp byte [edi], 32
+jnz .noesespacio
+inc edi
+jmp .seacaba
+.noesespacio:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+push ecx
+call mov_cursor
+.end:
+popad
+ret 
+
+
+global reschar
+reschar:
+call LeftArrow_Pressed
+ret
+
+global resline
+resline:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi,eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+cmp ecx, 0
+je .end
+push ecx
+call mov_cursor
+.end:
+popad
+ret
