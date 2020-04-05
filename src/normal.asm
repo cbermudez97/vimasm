@@ -5,8 +5,10 @@ CONTROL_STATUS db 0
 global COPY_FROM
 COPY_FROM db 0; 0-no copy 1-visual simple 2-visual line ...
 NORMAL_CONSOLE db " --NORMAL--                                                                     "
+ENDING db 0
 
 section .text
+extern REPLACE
 extern RES_SIZE
 extern CURSOR
 extern COPY
@@ -46,6 +48,7 @@ normal:
     rdtsc
     mov [timer], eax
     mov [timer+4], edx
+    mov byte [ENDING], 0
     .loop:
       ;Cleaning registries.
       xor eax, eax
@@ -68,7 +71,10 @@ normal:
       call printconsole
       ;Get the input
       call get_input
+      cmp byte [ENDING], 1
+      je .end
     jmp .loop
+    .end:
     ret
 
 get_input:
@@ -76,19 +82,22 @@ get_input:
     call scan
     push ax
     ;bindings here
-    bind KEY.I, insertion
+    ;Binds whit control pressed
+    bind KEY.I, to_insertion
     bind KEY.UpArrow , UpArrow_Pressed
     bind KEY.DownArrow , DownArrow_Pressed
     bind KEY.LeftArrow , LeftArrow_Pressed
     bind KEY.RightArrow , RightArrow_Pressed
     bind KEY.Ctrl, Control_Pressed
     bind KEY.Ctrl+128, Control_Released
+    bind KEY.R, to_replace
     bind KEY.V, to_visuals
     bind KEY.P, Paste
     bind KEY.L_SH , Shift_Pressed
     bind KEY.L_SH+128 , Shift_Released
     bind KEY.R_SH , Shift_Pressed
     bind KEY.R_SH+128 , Shift_Released
+    bind KEY.C, to_presentation
     end_input:
     pop ax
     pop eax
@@ -110,6 +119,7 @@ Control_Released:
   .end:
   ret
 
+global Paste
 Paste:
 cmp byte [COPY_FROM], 0
 je .none
@@ -194,9 +204,28 @@ jmp .end
 .next1:
 ;cmp byte [CONTROL_STATUS], 1;visual block control + v
 ;jne .next2
-
 ;.next2:
 ;visual simple
 call visual_simple
 .end:
 ret
+
+to_insertion:
+  mov byte [REPLACE], 0
+  call insertion
+  ret
+
+to_replace:
+  cmp byte [SHIFT_STATUS], 1
+  jne .no
+  mov byte [REPLACE], 1
+  call insertion
+  .no:
+  ret
+
+to_presentation:
+  cmp byte [CONTROL_STATUS], 1
+  jne .no
+  mov byte [ENDING], 1
+  .no:
+  ret

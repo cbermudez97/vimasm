@@ -8,7 +8,8 @@ ASCII_CODE_NS db  0,27,49,50,51,52,53,54,55,56,57,48,45,61,8,9,113,119,101,114,1
 ASCII_CODE_S  db  0,27,33,64,35,36,37,94,38,42,40,41,95,43,8,9,81 ,87 ,69 ,82 ,84 ,89 ,85 ,73 ,79 ,80 ,123,125,13,0,65,83 ,68 ,70 ,71 ,72 ,74 ,75 ,76 ,58,34,126,0,124,90 ,88 ,67,86 ,66,78 ,77 ,60,62,63,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,43,0,0,0,0,0
 ASCII_CODE_LEN dd 83
 
-INSERT_CONSOLE db " --INSERT--                                                                     "
+INSERT_CONSOLE db  " --INSERT--                                                                     "
+REPLACE_CONSOLE db " --REPLACE--                                                                    "
 
 ENDING db 0
 
@@ -17,16 +18,19 @@ global TEXT
 global SCREEN_START
 global CURSOR
 global END
+global REPLACE
 TEXT times 10000000 db 0
 SCREEN_START dd 0
 CURSOR dd 0
 END dd 0
+REPLACE db 0
 
 ;Shift Status
 global SHIFT_STATUS
 SHIFT_STATUS db 0
 
 section .text
+extern Paste
 extern newfix
 extern blink
 extern clear
@@ -39,6 +43,9 @@ extern traslate
 extern setcursor
 extern normal
 extern printconsole
+extern Control_Pressed
+extern Control_Released
+extern CONTROL_STATUS
 
 ;Put in parameter 2 (registry) the ascii code of the key whit hex code parameter 1. No Shift
 %macro GET_ASCII_NS 2
@@ -51,7 +58,7 @@ mov %2, [ASCII_CODE_S + %1]
 
 
 ; bindc a key to a procedure
-%macro bindc 2
+%macro bind 2
   cmp byte [esp], %1
   jne %%next
   call %2
@@ -85,7 +92,13 @@ insertion:
       call printscreen
       ;End printing the screen.
       ;Printing the console
+      cmp byte [REPLACE], 0
+      jne .other
       push INSERT_CONSOLE
+      jmp .noother
+      .other:
+      push REPLACE_CONSOLE
+      .noother:
       call printconsole
       ;Printing the cursor
       push dword [CURSOR]
@@ -113,18 +126,29 @@ get_input:
     je end_input
     
     ; Check for bindings.(enter,backspace...)
-    bindc KEY.L_SH , Shift_Pressed
-    bindc KEY.L_SH+128 , Shift_Released
-    bindc KEY.UpArrow , UpArrow_Pressed
-    bindc KEY.DownArrow , DownArrow_Pressed
-    bindc KEY.LeftArrow , LeftArrow_Pressed
-    bindc KEY.RightArrow , RightArrow_Pressed
-    bindc KEY.BKSP , Backspace_Pressed
-    bindc KEY.Enter , Enter_Pressed
-    bindc KEY.R_SH , Shift_Pressed
-    bindc KEY.R_SH+128 , Shift_Released
-    bindc KEY.Tab, Tab_Pressed
-    bindc KEY.ESC, to_normal
+    bind KEY.L_SH , Shift_Pressed
+    bind KEY.L_SH+128 , Shift_Released
+    bind KEY.UpArrow , UpArrow_Pressed
+    bind KEY.DownArrow , DownArrow_Pressed
+    bind KEY.LeftArrow , LeftArrow_Pressed
+    bind KEY.RightArrow , RightArrow_Pressed
+    bind KEY.Ctrl, Control_Pressed
+    bind KEY.Ctrl+128, Control_Released
+    bind KEY.BKSP , Backspace_Pressed
+    bind KEY.Enter , Enter_Pressed
+    bind KEY.R_SH , Shift_Pressed
+    bind KEY.R_SH+128 , Shift_Released
+    bind KEY.Tab, Tab_Pressed
+    bind KEY.ESC, to_normal
+    ; Binds that need control
+    cmp byte [CONTROL_STATUS], 1
+    jne nocontrol
+    bind KEY.Y, Paste
+    bind KEY.H, erasechar
+    bind KEY.W, eraseword
+    bind KEY.U, eraseline
+    jmp end_input
+    nocontrol:
     continue:
     ;Update the the text if char.        
       xor ebx, ebx
@@ -147,12 +171,20 @@ get_input:
       mov edx, TEXT
       add edx, [SCREEN_START]
       add edx, [CURSOR]
-      ;Insert a new char
+      ;Insert a new char?
+      cmp byte [edx], 3 
+      je insert
+      cmp byte [edx], 10
+      je insert
+      cmp byte [REPLACE], 1
+      je noinsert
+      insert:
       push edx
       push dword 1
       push dword [END]
       call traslate
       inc dword [END]
+      noinsert:
       ;Write char in al to the Text
       mov [edx], bl
       ;Move cursor one position
@@ -317,6 +349,7 @@ RightArrow_Pressed:
   pop eax
   ret
 
+global Tab_Pressed
 Tab_Pressed:
   push eax
   push ecx
@@ -347,7 +380,7 @@ Tab_Pressed:
   pop eax
   ret
 
-
+global Backspace_Pressed
 Backspace_Pressed:
   push eax
   push ecx
@@ -390,6 +423,7 @@ Backspace_Pressed:
   pop eax
   ret
 
+global Enter_Pressed
 Enter_Pressed:
   push eax
   push edx
@@ -429,3 +463,126 @@ Enter_Pressed:
   to_normal:;Change to Normal Mode
   mov byte [ENDING], 1
   ret
+
+
+
+;Erasing with movement operators
+global eraseword
+eraseword:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi, eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp byte [edi], 32
+jnz .noesespacio
+inc edi
+jmp .seacaba
+.noesespacio:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+push edi
+push ecx
+push dword [END]
+call traslate
+add [END], ecx
+push ecx
+call mov_cursor
+call newfix
+.end:
+popad
+ret 
+
+
+global erasechar
+erasechar:
+call Backspace_Pressed
+ret
+
+global eraseline
+eraseline:
+pushad
+
+xor eax,eax
+xor ecx,ecx
+xor edx,edx
+xor ebx,ebx
+
+mov eax, TEXT
+add eax, [SCREEN_START]
+add eax, [CURSOR]
+
+cmp eax, TEXT
+je .end
+
+mov edi,eax
+dec edi
+.ciclo:
+cmp byte [edi], 0
+jnz .noescero
+inc edi
+jmp .seacaba
+.noescero:
+cmp byte [edi], 10
+jnz .noesfindelinea
+inc edi
+jmp .seacaba
+.noesfindelinea:
+cmp edi, TEXT 
+jnz .noesinicio
+inc ecx
+jmp .seacaba
+.noesinicio:
+inc ecx
+dec edi
+jmp .ciclo
+
+.seacaba:
+not ecx
+inc ecx
+push edi
+push ecx
+push dword [END]
+call traslate
+add [END], ecx
+cmp ecx, 0
+je .nomove
+push ecx
+call mov_cursor
+.nomove:
+call newfix
+.end:
+popad
+ret
